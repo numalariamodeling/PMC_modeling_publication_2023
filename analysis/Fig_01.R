@@ -53,8 +53,7 @@ if (pmc_single) {
 ## B  -  RTS,S single dose
 ##---------------------------------------
 if (rtss_single) {
-  fdir <- file.path('projects', 'rtss_scenarios', 'generic_setting', 'reference_Kintampo',
-                    'kintampo_trial_summary_3month.csv')
+  fdir <- file.path('reference_dat', 'kintampo_trial_summary_3month.csv')
 
   reference_filepath = file.path(drive, fdir)
   ref_df = fread(reference_filepath) %>%
@@ -64,7 +63,7 @@ if (rtss_single) {
     dplyr::select('time_group', 'PE_ref')
 
   vaccine_date <- as.Date('2021-01-01')
-  cases_df <- fread(file.path(simout_dir, exp_name_rtss, 'All_Age_monthly_Cases.csv')) %>%
+  cases_df <- fread(file.path('simulation_output', exp_name_rtss, 'All_Age_monthly_Cases.csv')) %>%
     rename_with(~gsub(' ', '_', .x)) %>%
     mutate(date = as.Date(date)) %>%
     filter(date >= vaccine_date) %>%  ## after vaccination date

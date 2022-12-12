@@ -1,16 +1,14 @@
 source(file.path('analysis', '_config.R'))
+exp_name <- 'generic_PMCmode_RTSS_vaccSP_IIV'
 
-(exp_name <- 'generic_PMCmode_RTSS_vaccSP_IIV')
-fig4A = TRUE
-fig4B = TRUE
-fig4B_cum = TRUE
-y = 2.0
+fig4A <- TRUE
+fig4B <- TRUE
+fig4B_cum <- TRUE
+y <- 2.0
 scenario_labels <- c('None', 'PMC-3', 'PMC-4', 'PMC-5', 'PMC-6', 'PMC-7', 'RTS,S', 'PMC-3 + RTS,S')
 
 cases_df <- fread(file.path(simout_dir, exp_name, 'simdat_aggr_week.csv')) %>%
   rename_with(~gsub('ipti', 'pmc', .x))
-
-
 table(cases_df$pmc_coverage, cases_df$rtss_coverage, exclude = NULL)
 
 if (fig4A) {
@@ -18,9 +16,6 @@ if (fig4A) {
     mutate(pmc_mode = ifelse(pmc_rtss_cov == '0-0.8', 'RTS,S', pmc_mode),
            pmc_mode = ifelse(pmc_rtss_cov == '0-0', 'None', pmc_mode)) %>%
     gen_pmc_mode_fct()
-
-
-  table(pdat1$name)
 
   pdat1 <- pdat1 %>%
     filter(age <= y * 365 & name %in% c('clinical_cases', 'severe_cases', 'PE_clinical_incidence', 'PE_severe_incidence')) %>%
@@ -221,7 +216,6 @@ if (fig4B_cum) {
     dplyr::mutate(yint = ifelse(name == 'clinical_cases', 110, 1.5), yint_min = 0,
                   pmc_mode_fct = ifelse(pmc_rtss_cov == '0.8-0.8', 'PMC-3 + RTS,S', as.character(pmc_mode_fct)))
 
-
   pdat$pmc_mode_fct <- factor(pdat$pmc_mode_fct,
                               levels = scenario_labels,
                               labels = scenario_labels)
@@ -306,6 +300,7 @@ if (fig4B_PE) {
 
   pdat <- pdat %>%
     mutate(yint = 1, yint_min = -0.1)
+
   pdatU1 <- pdat %>%
     filter(age_group == 'U1' & name %in% outcome_cols)
 
@@ -349,44 +344,49 @@ if (fig4B_PE) {
 
 if (fig4C) {
 
-  dat_agrgrp <- fread(file.path(simout_dir, exp_name, 'simdat_aggr_agegroup.csv')) %>% filter(age_group %in% c('U1', 'U2'))
-  dat_yr <- fread(file.path(simout_dir, exp_name, 'simdat_aggr_year.csv')) %>%
-    mutate(year = ifelse(year >= 2020, year - 2020, year)) %>%
-    filter(year < 2) %>%
-    mutate(age_group = paste0('>', year)) %>%
-    dplyr::select(colnames(dat_agrgrp)) %>%
-    bind_rows(dat_agrgrp)
+  outcome_cols <- c('clinical_cases_averted', 'severe_cases_averted')
 
-  pdat <- dat_yr %>%
+  cases_df_agegrp <- fread(file.path(simout_dir, exp_name, 'simdat_aggr_agegroup.csv')) %>%
+    rename_with(~gsub('ipti', 'pmc', .x)) %>%
+    filter(age_group %in% c('U2')) %>%
+    filter(name %in% paste0(outcome_cols, '_cum')) %>%
+    mutate(name = gsub('_cum', '', name))
+
+  pdat <- cases_df_agegrp %>%
     filter(pmc_rtss_cov %in% c('0-0', '0.8-0', '0-0.8', '0.8-0.8')) %>%
-    filter(pmc_mode %in% c('3tp', '5tp', '7tp2ndyr')) %>%
-    filter(age_group %in% c('U2'))
+    filter(pmc_mode %in% c('3tp', '5tp', '7tp2ndyr'))
 
+  table(pdat$name, exclude = NULL)
   table(pdat$pmc_rtss_cov, pdat$pmc_mode, exclude = NULL)
   pdat <- gen_pmc_mode_fct(pdat)
 
-
   pdat <- pdat %>% filter(pmc_rtss_cov != '0-0')
+
   pdat_rtss <- subset(pdat, rtss_coverage != 0 & pmc_coverage == 0) %>%
-    select(-pmc_mode, -pmc_mode_fct) %>%
+    dplyr::select(-pmc_mode, -pmc_mode_fct) %>%
     left_join(unique(pdat[, c('age_group', 'pmc_mode', 'pmc_mode_fct')]))
+
   rtss_alone <- pdat %>%
     filter(pmc_coverage == 0 &
-             rtss_coverage != 0 &
-             name %in% c('clinical_cases_averted', 'severe_cases_averted')) %>%
-    select(-pmc_mode, -pmc_mode_fct, -pmc_rtss_cov)
-  rtss_alone <- as.data.frame(unique(pdat[, c('pmc_mode_fct', 'pmc_mode')])) %>% left_join(rtss_alone, by = character())
+             rtss_coverage != 0) %>%
+    dplyr::select(-pmc_mode, -pmc_mode_fct, -pmc_rtss_cov)
+
+  rtss_alone <- as.data.frame(unique(pdat[, c('pmc_mode_fct', 'pmc_mode')])) %>%
+    left_join(rtss_alone, by = character())
+
+  pdat <- pdat %>%
+    mutate(yint = ifelse(name == 'clinical_cases_averted', 3000, 40), yint_min = 0)
 
   #### RTSS in addition to PMC
-  pplot1 <- ggplot(data = subset(pdat, pmc_coverage != 0 &
-    rtss_coverage != 0 &
-    name %in% c('clinical_cases_averted', 'severe_cases_averted'))) +
-    geom_col(aes(x = pmc_mode_fct, y = median_val * 100, col = pmc_mode_fct),
-             fill = 'NA', position = position_dodge(width = 0.9), linetype = 'dashed', size = 1, width = 0.8, show.legend = F, alpha = 0.6) +
-    geom_col(data = subset(pdat, ((pmc_coverage != 0 & rtss_coverage == 0)) & name %in% c('clinical_cases_averted', 'severe_cases_averted')),
-             aes(x = pmc_mode_fct, y = median_val * 100, fill = pmc_mode_fct), position = position_dodge(width = 0.9), size = 0.3, width = 0.8) +
-
-    geom_errorbar(aes(x = pmc_mode_fct, y = median_val * 100, ymin = low_val * 100, ymax = up_val * 100), width = 0.01) +
+  pplot1 <- ggplot(data = subset(pdat, pmc_coverage != 0 & rtss_coverage != 0)) +
+    geom_hline(aes(yintercept = yint), alpha = 0) +
+    geom_col(aes(x = pmc_mode_fct, y = median_val, col = pmc_mode_fct),
+             fill = 'NA', position = position_dodge(width = 0.9), linetype = 'dashed',
+             size = 1, width = 0.8, show.legend = F, alpha = 0.6) +
+    geom_col(data = subset(pdat, ((pmc_coverage != 0 & rtss_coverage == 0))),
+             aes(x = pmc_mode_fct, y = median_val, fill = pmc_mode_fct),
+             position = position_dodge(width = 0.9), size = 0.3, width = 0.8) +
+    geom_errorbar(aes(x = pmc_mode_fct, y = median_val, ymin = low_val, ymax = up_val), width = 0.01) +
     facet_wrap(~name, nrow = 2, scales = 'free_y') +
     scale_y_continuous(labels = comma, expand = c(0, 0)) +
     labs(subtitle = 'RTS,S in addition to PMC\n',
@@ -400,14 +400,13 @@ if (fig4C) {
 
 
   #### PMC in addition to RTSS
-  pplot2 <- ggplot(data = subset(pdat, pmc_coverage == 0.8 &
-    rtss_coverage == 0.8 &
-    name %in% c('clinical_cases_averted', 'severe_cases_averted'))) +
-    geom_col(aes(x = pmc_mode_fct, y = median_val * 100, col = pmc_mode_fct),
+  pplot2 <- ggplot(data = subset(pdat, pmc_coverage == 0.8 & rtss_coverage == 0.8)) +
+    geom_hline(aes(yintercept = yint), alpha = 0) +
+    geom_col(aes(x = pmc_mode_fct, y = median_val, col = pmc_mode_fct),
              fill = 'NA', position = position_dodge(width = 0.9), linetype = 'dashed', size = 1, width = 0.8, show.legend = F, alpha = 0.6) +
-    geom_col(data = subset(pdat_rtss, name %in% c('clinical_cases_averted', 'severe_cases_averted')),
-             aes(x = pmc_mode_fct, y = median_val * 100, fill = pmc_mode_fct), position = position_dodge(width = 0.9), size = 0.3, width = 0.8) +
-    geom_errorbar(aes(x = pmc_mode_fct, y = median_val * 100, ymin = low_val * 100, ymax = up_val * 100), width = 0.01) +
+    geom_col(data = pdat_rtss,
+             aes(x = pmc_mode_fct, y = median_val, fill = pmc_mode_fct), position = position_dodge(width = 0.9), size = 0.3, width = 0.8) +
+    geom_errorbar(aes(x = pmc_mode_fct, y = median_val, ymin = low_val, ymax = up_val), width = 0.01) +
     facet_wrap(~name, nrow = 2, scales = 'free_y') +
     scale_y_continuous(labels = comma, expand = c(0, 0)) +
     labs(subtitle = 'PMC in addition to RTS,S\n',
@@ -431,7 +430,6 @@ if (fig4C) {
 } #fig4C
 
 ### Tables
-
 cases_df_agegrp <- fread(file.path(simout_dir, exp_name, 'simdat_aggr_agegroup.csv')) %>%
   rename_with(~gsub('ipti', 'pmc', .x)) %>%
   filter(age_group %in% c('U1', 'U2'))

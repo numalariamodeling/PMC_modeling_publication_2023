@@ -5,7 +5,7 @@ rm(a)
 
 plot_dir <- file.path('figures')
 data_path <- file.path('reference_dat')
-simout_dir <- file.path('simulation_output')
+simout_dir <- file.path('postprocessed_output')
 
 
 ###-------------------  Define custom objects
