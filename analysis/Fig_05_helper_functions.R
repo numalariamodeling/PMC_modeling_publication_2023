@@ -55,7 +55,9 @@ EPI_to_pmc_cov <- function(x = NULL, get_scaling_factors = T) {
 }
 
 
-##-------------------------------------------------------
+##---------------
+## Interpolations
+##---------------
 f_spline <- function(dat, x, y) {
   dat <- as.data.frame(dat)
   sp_model <- smooth.spline(dat[, x], dat[, y])
@@ -122,3 +124,43 @@ get_interpolatedgrid <- function(dat, cov1, cov2, outcome, return_model = F) {
 }
 
 
+##---------------
+## Data postprocessing, effect size
+##---------------
+f_counterfactual_pfpr <- function(exp_name, SAVE = T) {
+  counterfactual_pfpr <- fread(file.path(simout_dir, exp_name, 'simdat_aggr_agegroup.csv')) %>%
+    filter(age_group %in% c('U5', 'U2') &
+             pmc_coverage == 0 &
+             rtss_coverage == 0) %>%
+    filter(name %in% c('PfHRP2_Prevalence', 'clinical_cases', 'severe_cases')) %>%
+    mutate(name = paste0(name, '_c')) %>%
+    pivot_longer(cols = c(mean_val, median_val, low_val, up_val, min_val, max_val), names_to = 'statistic') %>%
+    pivot_wider(names_from = name,
+                values_from = value,
+                names_glue = "{name}_{.value}") %>%
+    dplyr::select(-pmc_coverage, -rtss_coverage, -pmc_mode, -pmc_rtss_cov) %>%
+    rename_with(~gsub("_value", "", .x)) %>%
+          mutate(Annual_EIR=round(Annual_EIR,2),
+                 cm_coverage=round(cm_coverage,2))
+
+  if (SAVE)fwrite(counterfactual_pfpr, file.path(simout_dir, exp_name, 'counterfactual_pfpr.csv'))
+  return(counterfactual_pfpr)
+}
+
+f_effect_size <- function() {
+  outcome_channels = c('clinical_cases', 'severe_cases')
+  pmc_effect_dat <- fread(file.path(simout_dir, exp_name, 'simdat_aggr_agegroup.csv')) %>%
+    filter(age_group == 'U2' & (pmc_coverage != 0 | rtss_coverage != 0)) %>%
+    filter(name %in% outcome_channels) %>%
+    pivot_longer(cols = c(mean_val, median_val, low_val, up_val, min_val, max_val), names_to = 'statistic') %>%
+    pivot_wider(names_from = age_group, values_from = value,
+                names_glue = "{age_group}_{.value}") %>%
+    pivot_wider(names_from = name,
+                values_from = c(U2_value),
+                names_glue = "{name}_{.value}") %>%
+    rename_with(~gsub("_value", "", .x)) %>%
+    left_join(counterfactual_pfpr)
+
+  return(pmc_effect_dat)
+
+}

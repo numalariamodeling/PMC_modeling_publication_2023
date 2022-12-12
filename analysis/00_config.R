@@ -41,6 +41,7 @@ pmc_cols <- c('#4EA3D1', '#007BBD', '#CBDB47', '#99CA3C', '#208B3A')
 rtss_pmc_cols <- c('#fa8e9e', '#d97373')
 getPalette <- colorRampPalette(brewer.pal(9, "YlOrRd"))(9)[3:9]
 custom_cols <- c("#4EA3D1", "#007BBD", "#51571C", "#99CA3C", "#208B3A", rtss_col, '#d97373')
+custom_cols2 <- c("#4EA3D1",  "#51571C", "#208B3A", rtss_col, '#d97373')
 CustomPalette_sub <- c('#55b748', '#00BFFF', '#FFA500') # if only 1 IPTi mode
 Dark2palette <- colorRampPalette(brewer.pal(8, "Dark2"))(12)
 RdBupalette <- colorRampPalette(brewer.pal(8, "RdBu"))(12)
