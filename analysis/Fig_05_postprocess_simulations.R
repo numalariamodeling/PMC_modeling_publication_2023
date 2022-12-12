@@ -108,7 +108,6 @@ df <- df %>%
 
 tapply(df$clinical_cases_averted_pop, df$scen, summary)
 
-
 table(df$scen)
 tapply(df$PE_clinical_cases, df$scen, summary)
 tapply(df$PE_severe_cases, df$scen, summary)
@@ -117,9 +116,9 @@ tapply(df$PE_clinical_cases, df$age_group, summary)
 tapply(df$PE_severe_cases, df$age_group, summary)
 
 
-### explorative
-explore_df = F
-if (explore_df) {
+### describe counterfactual
+desc_counterfactual = F
+if (desc_counterfactual) {
   df %>%
     filter(scen == 'counterfactual') %>%
     group_by(age_group, statistic) %>%
