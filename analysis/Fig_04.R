@@ -4,6 +4,8 @@ exp_name <- 'generic_PMCmode_RTSS_vaccSP_IIV'
 fig4A <- TRUE
 fig4B <- TRUE
 fig4B_cum <- TRUE
+fig4C <- TRUE
+fig4C_cum <- TRUE
 y <- 2.0
 scenario_labels <- c('None', 'PMC-3', 'PMC-4', 'PMC-5', 'PMC-6', 'PMC-7', 'RTS,S', 'PMC-3 + RTS,S')
 
@@ -140,7 +142,7 @@ if (fig4B) {
                               labels = scenario_labels)
 
   pdat <- pdat %>%
-    mutate(yint = ifelse(name == 'clinical_cases_averted', 2250, 35), yint_min = 0)
+    mutate(yint = ifelse(name == 'clinical_cases_averted', 1500, 25), yint_min = 0)
 
   pdatU1 <- pdat %>%
     filter(age_group == 'U1' & name %in% outcome_cols)
@@ -341,11 +343,116 @@ if (fig4B_PE) {
 
 } #fig4B_PE
 
-
 if (fig4C) {
 
   outcome_cols <- c('clinical_cases_averted', 'severe_cases_averted')
+  cases_df_agegrp <- fread(file.path(simout_dir, exp_name, 'simdat_aggr_agegroup.csv')) %>%
+    rename_with(~gsub('ipti', 'pmc', .x)) %>%
+    filter(age_group %in% c('U2')) %>%
+    filter(name %in% outcome_cols)
 
+  pdat <- cases_df_agegrp %>%
+    filter(pmc_rtss_cov %in% c('0-0', '0.8-0', '0-0.8', '0.8-0.8')) %>%
+    filter(pmc_mode %in% c('3tp', '5tp', '7tp2ndyr'))
+
+  table(pdat$name, exclude = NULL)
+  table(pdat$pmc_rtss_cov, pdat$pmc_mode, exclude = NULL)
+  pdat <- gen_pmc_mode_fct(pdat)
+
+  pdat <- pdat %>% filter(pmc_rtss_cov != '0-0')
+
+  pdat_rtss <- subset(pdat, rtss_coverage != 0 & pmc_coverage == 0) %>%
+    dplyr::select(-pmc_mode, -pmc_mode_fct) %>%
+    left_join(unique(pdat[, c('age_group', 'pmc_mode', 'pmc_mode_fct')]))
+
+  rtss_alone <- pdat %>%
+    filter(pmc_coverage == 0 &
+             rtss_coverage != 0) %>%
+    dplyr::select(-pmc_mode, -pmc_mode_fct, -pmc_rtss_cov)
+
+  rtss_alone <- as.data.frame(unique(pdat[, c('pmc_mode_fct', 'pmc_mode')])) %>%
+    left_join(rtss_alone, by = character())
+
+  pdat <- pdat %>%
+    mutate(yint = ifelse(name == 'clinical_cases_averted', 2000, 25), yint_min = 0)
+
+  #### RTSS in addition to PMC
+  pplot1 <- ggplot(data = subset(pdat, pmc_coverage != 0 & rtss_coverage != 0)) +
+    geom_hline(aes(yintercept = yint), alpha = 0) +
+    geom_col(aes(x = pmc_mode_fct, y = median_val, col = pmc_mode_fct),
+             fill = 'NA', position = position_dodge(width = 0.9), linetype = 'dashed',
+             size = 1, width = 0.8, show.legend = F, alpha = 0.6) +
+    geom_col(data = subset(pdat, ((pmc_coverage != 0 & rtss_coverage == 0))),
+             aes(x = pmc_mode_fct, y = median_val, fill = pmc_mode_fct),
+             position = position_dodge(width = 0.9), size = 0.3, width = 0.8) +
+    geom_errorbar(aes(x = pmc_mode_fct, y = median_val, ymin = low_val, ymax = up_val), width = 0.01) +
+    facet_wrap(~name, nrow = 2, scales = 'free_y') +
+    scale_y_continuous(labels = comma, expand = c(0, 0)) +
+    labs(subtitle = 'RTS,S in addition to PMC\n',
+         x = 'Age (months)',
+         y = 'Cumulative cases averted per\n1000 population in children U2',
+         color = '', fill = '') +
+    scale_color_manual(values = c(pmc_cols[c(1, 2, 5)], rtss_col)) +
+    scale_fill_manual(values = c(pmc_cols[c(1, 2, 5)], rtss_col)) +
+    customTheme_nogrid +
+    theme(legend.position = 'None')
+
+
+  #### PMC in addition to RTSS
+  # pplot2 <- ggplot(data = subset(pdat, pmc_coverage == 0.8 & rtss_coverage == 0.8)) +
+  #   geom_hline(aes(yintercept = yint), alpha = 0) +
+  #   geom_col(aes(x = pmc_mode_fct, y = median_val, col = pmc_mode_fct),
+  #            fill = 'NA', position = position_dodge(width = 0.9), linetype = 'dashed', size = 1, width = 0.8, show.legend = F, alpha = 0.6) +
+  #   geom_col(data = pdat_rtss,
+  #            aes(x = pmc_mode_fct, y = median_val, fill = pmc_mode_fct), position = position_dodge(width = 0.9), size = 0.3, width = 0.8) +
+  #   geom_errorbar(aes(x = pmc_mode_fct, y = median_val, ymin = low_val, ymax = up_val), width = 0.01) +
+  #   facet_wrap(~name, nrow = 2, scales = 'free_y') +
+  #   scale_y_continuous(labels = comma, expand = c(0, 0)) +
+  #   labs(subtitle = 'PMC in addition to RTS,S\n',
+  #        x = 'Age (months)',
+  #        y = 'Cumulative cases averted per\n1000 population in children U2',
+  #        color = '', fill = '') +
+  #   scale_color_manual(values = c(pmc_cols[c(1, 2, 5)], rtss_col)) +
+  #   scale_fill_manual(values = c(pmc_cols[c(1, 2, 5)], rtss_col)) +
+  #   customTheme_nogrid +
+  #   theme(legend.position = 'None')
+
+
+    pplot2 <- ggplot(data = subset(pdat, pmc_coverage == 0.8 & rtss_coverage == 0.8)) +
+    geom_hline(aes(yintercept = yint), alpha = 0) +
+    geom_col(aes(x = pmc_mode_fct, y = median_val, col = pmc_mode_fct),
+             position = position_dodge(width = 0.9),fill='NA', linetype = 'dashed', size = 1, width = 0.8, show.legend = F, alpha = 0.6) +
+      geom_col(aes(x = pmc_mode_fct, y = median_val, fill = pmc_mode_fct),
+             position = position_dodge(width = 0.9),  size = 1, width = 0.8, show.legend = F) +
+    geom_col(data = pdat_rtss,
+             aes(x = pmc_mode_fct, y = median_val), fill = 'white', position = position_dodge(width = 0.9), size = 0.3, width = 0.8) +
+    geom_errorbar(aes(x = pmc_mode_fct, y = median_val, ymin = low_val, ymax = up_val), width = 0.01) +
+    facet_wrap(~name, nrow = 2, scales = 'free_y') +
+    scale_y_continuous(labels = comma, expand = c(0, 0)) +
+    labs(subtitle = 'PMC in addition to RTS,S\n',
+         x = 'Age (months)',
+         y = 'Cumulative cases averted per\n1000 population in children U2',
+         color = '', fill = '') +
+    scale_color_manual(values = c(pmc_cols[c(1, 2, 5)], rtss_col)) +
+    scale_fill_manual(values = c(pmc_cols[c(1, 2, 5)], rtss_col)) +
+    customTheme_nogrid +
+    theme(legend.position = 'None')
+
+
+
+  pplot <- plot_combine(list(pplot1, pplot2), ncol = 2)
+  print(pplot)
+
+  f_save_plot(pplot, paste0('Fig4C'),
+              file.path(plot_dir), width = 10, height = 5, units = 'in', device_format = device_format)
+  fwrite(pdat, file.path(plot_dir, 'csv', 'Fig4C_dat_.csv'))
+
+
+} #fig4C
+
+if (fig4C_cum) {
+
+  outcome_cols <- c('clinical_cases_averted', 'severe_cases_averted')
   cases_df_agegrp <- fread(file.path(simout_dir, exp_name, 'simdat_aggr_agegroup.csv')) %>%
     rename_with(~gsub('ipti', 'pmc', .x)) %>%
     filter(age_group %in% c('U2')) %>%
@@ -391,7 +498,7 @@ if (fig4C) {
     scale_y_continuous(labels = comma, expand = c(0, 0)) +
     labs(subtitle = 'RTS,S in addition to PMC\n',
          x = 'Age (months)',
-         y = 'Relative reduction\nin clinical cases',
+         y = 'Cumulative cases averted per\n1000 population in children U2',
          color = '', fill = '') +
     scale_color_manual(values = c(pmc_cols[c(1, 2, 5)], rtss_col)) +
     scale_fill_manual(values = c(pmc_cols[c(1, 2, 5)], rtss_col)) +
@@ -400,18 +507,39 @@ if (fig4C) {
 
 
   #### PMC in addition to RTSS
-  pplot2 <- ggplot(data = subset(pdat, pmc_coverage == 0.8 & rtss_coverage == 0.8)) +
+  # pplot2 <- ggplot(data = subset(pdat, pmc_coverage == 0.8 & rtss_coverage == 0.8)) +
+  #   geom_hline(aes(yintercept = yint), alpha = 0) +
+  #   geom_col(aes(x = pmc_mode_fct, y = median_val, col = pmc_mode_fct),
+  #            fill = 'NA', position = position_dodge(width = 0.9), linetype = 'dashed', size = 1, width = 0.8, show.legend = F, alpha = 0.6) +
+  #   geom_col(data = pdat_rtss,
+  #            aes(x = pmc_mode_fct, y = median_val, fill = pmc_mode_fct), position = position_dodge(width = 0.9), size = 0.3, width = 0.8) +
+  #   geom_errorbar(aes(x = pmc_mode_fct, y = median_val, ymin = low_val, ymax = up_val), width = 0.01) +
+  #   facet_wrap(~name, nrow = 2, scales = 'free_y') +
+  #   scale_y_continuous(labels = comma, expand = c(0, 0)) +
+  #   labs(subtitle = 'PMC in addition to RTS,S\n',
+  #        x = 'Age (months)',
+  #        y = 'Cumulative cases averted per\n1000 population in children U2',
+  #        color = '', fill = '') +
+  #   scale_color_manual(values = c(pmc_cols[c(1, 2, 5)], rtss_col)) +
+  #   scale_fill_manual(values = c(pmc_cols[c(1, 2, 5)], rtss_col)) +
+  #   customTheme_nogrid +
+  #   theme(legend.position = 'None')
+
+
+    pplot2 <- ggplot(data = subset(pdat, pmc_coverage == 0.8 & rtss_coverage == 0.8)) +
     geom_hline(aes(yintercept = yint), alpha = 0) +
     geom_col(aes(x = pmc_mode_fct, y = median_val, col = pmc_mode_fct),
-             fill = 'NA', position = position_dodge(width = 0.9), linetype = 'dashed', size = 1, width = 0.8, show.legend = F, alpha = 0.6) +
+             position = position_dodge(width = 0.9),fill='NA', linetype = 'dashed', size = 1, width = 0.8, show.legend = F, alpha = 0.6) +
+      geom_col(aes(x = pmc_mode_fct, y = median_val, fill = pmc_mode_fct),
+             position = position_dodge(width = 0.9),  size = 1, width = 0.8, show.legend = F) +
     geom_col(data = pdat_rtss,
-             aes(x = pmc_mode_fct, y = median_val, fill = pmc_mode_fct), position = position_dodge(width = 0.9), size = 0.3, width = 0.8) +
+             aes(x = pmc_mode_fct, y = median_val), fill = 'white', position = position_dodge(width = 0.9), size = 0.3, width = 0.8) +
     geom_errorbar(aes(x = pmc_mode_fct, y = median_val, ymin = low_val, ymax = up_val), width = 0.01) +
     facet_wrap(~name, nrow = 2, scales = 'free_y') +
     scale_y_continuous(labels = comma, expand = c(0, 0)) +
     labs(subtitle = 'PMC in addition to RTS,S\n',
          x = 'Age (months)',
-         y = 'Relative reduction\nin clinical cases',
+         y = 'Cumulative cases averted per\n1000 population in children U2',
          color = '', fill = '') +
     scale_color_manual(values = c(pmc_cols[c(1, 2, 5)], rtss_col)) +
     scale_fill_manual(values = c(pmc_cols[c(1, 2, 5)], rtss_col)) +
@@ -419,15 +547,16 @@ if (fig4C) {
     theme(legend.position = 'None')
 
 
+
   pplot <- plot_combine(list(pplot1, pplot2), ncol = 2)
   print(pplot)
 
-  f_save_plot(pplot, paste0('Fig4C'),
-              file.path(plot_dir), width = 12, height = 5, units = 'in', device_format = device_format)
-  fwrite(pdat, file.path(plot_dir, 'csv', 'Fig4C_dat.csv'))
+  f_save_plot(pplot, paste0('Fig4C_cum'),
+              file.path(plot_dir), width = 10, height = 5, units = 'in', device_format = device_format)
+  fwrite(pdat, file.path(plot_dir, 'csv', 'Fig4C_dat_cum.csv'))
 
 
-} #fig4C
+} #fig4C_cum
 
 ### Tables
 cases_df_agegrp <- fread(file.path(simout_dir, exp_name, 'simdat_aggr_agegroup.csv')) %>%
