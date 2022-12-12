@@ -1,10 +1,6 @@
 tbl_opts <- c("striped", "hover", "condensed", "responsive")
-setwd(file.path(getwd(), 'manuscript_01'))
-source(file.path('00_config.R'))
-source(file.path('Fig_05_helper_functions.R'))
-
-simout_dir <- gsub('_generic', '_NGA', simout_dir)
-plot_dir <- file.path(plot_dir, 'fig_5_additional')
+source(file.path('_config.R'))
+source(file.path('_fig05_helper_functions.R'))
 
 getPalette <- rev(colorRampPalette(brewer.pal(8, "RdYlBu"))(12))
 getPalette2 <- rev(colorRampPalette(brewer.pal(8, "YlGnBu"))(12))
@@ -322,7 +318,6 @@ tapply(plot_dat$severe_cases_averted, plot_dat$coveragemode, summary)
 tapply(plot_dat$clinical_cases_averted_pop, plot_dat$coveragemode, summary)
 tapply(plot_dat$severe_cases_averted_pop, plot_dat$coveragemode, summary)
 
-
 #### All scenarios
 plot_dat <- df_out %>% group_by(coveragemode,scen) %>%
   filter(scen!='counterfactual') %>%
@@ -335,7 +330,6 @@ plot_dat <- df_out %>% group_by(coveragemode,scen) %>%
   mutate(diff = target/operational)
 
 tapply(plot_dat$diff, plot_dat$name, summary)
-
 
 tapply(plot_dat$clinical_cases_averted, plot_dat$coveragemode, summary)
 tapply(plot_dat$severe_cases_averted, plot_dat$coveragemode, summary)

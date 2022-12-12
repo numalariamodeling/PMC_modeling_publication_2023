@@ -1,4 +1,4 @@
-source(file.path('analysis', '00_config.R'))
+source(file.path('analysis', '_config.R'))
 
 exp_name_pmc <- 'generic_single_PMC_vaccSP_IIV'
 exp_name_rtss <- 'rtss_validation_KintampoPhase3_wBooster'

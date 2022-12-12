@@ -1,5 +1,5 @@
 #### RTS,S by EIR
-source(file.path('analysis', '00_config.R'))
+source(file.path('analysis', '_config.R'))
 
 exp_name <- 'generic_RTSScov_EIR_constant_vaccSP_IIV'
 

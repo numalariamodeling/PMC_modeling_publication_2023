@@ -1,6 +1,6 @@
 tbl_opts <- c("striped", "hover", "condensed", "responsive")
-source(file.path('analysis', '00_config.R'))
-source(file.path('analysis', 'Fig_05_helper_functions.R'))
+source(file.path('analysis', '_config.R'))
+source(file.path('analysis', '_fig05_helper_functions.R'))
 
 simout_dir <- gsub('_generic', '_NGA', simout_dir)
 outcome_channels = c('PE_clinical_incidence', 'PE_severe_incidence')

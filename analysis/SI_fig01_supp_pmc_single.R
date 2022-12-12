@@ -1,4 +1,4 @@
-source(file.path('analysis', '00_config.R'))
+source(file.path('analysis', '_config.R'))
 
 pmc_offset <- TRUE
 pmc_single_supp <- TRUE

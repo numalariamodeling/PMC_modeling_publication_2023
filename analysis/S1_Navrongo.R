@@ -1,4 +1,4 @@
-source(file.path('analysis', '00_config.R'))
+source(file.path('analysis', '_config.R'))
 
 
 study_start <- as.Date("2000-09-30")

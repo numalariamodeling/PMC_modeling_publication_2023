@@ -1,4 +1,4 @@
-source(file.path('analysis', '00_config.R'))
+source(file.path('analysis', '_config.R'))
 
 (exp_name <- 'generic_PMCmode_RTSS_vaccSP_IIV')
 scenario_labels <- c('None', 'PMC-3', 'PMC-4', 'PMC-5', 'PMC-6', 'PMC-7', 'RTS,S', 'PMC-3 + RTS,S')

@@ -1,8 +1,6 @@
-source(file.path('analysis', '00_config.R'))
+source(file.path('analysis', '_config.R'))
 
-
-(exp_name <- 'generic_PMC_RTSS_EIR_vaccSP_IIV')
-
+exp_name <- 'generic_PMC_RTSS_EIR_vaccSP_IIV'
 
 dat_aggr <- fread(file.path(simout_dir, exp_name, 'simdat_aggr_agegroup.csv')) %>%
   filter(Annual_EIR < eir_max) %>%

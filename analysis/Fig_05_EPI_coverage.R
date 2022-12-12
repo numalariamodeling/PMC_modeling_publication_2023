@@ -1,7 +1,7 @@
 tbl_opts <- c("striped", "hover", "condensed", "responsive")
 setwd(file.path(getwd(), 'manuscript_01'))
-source(file.path('00_config.R'))
-source(file.path('Fig_05_helper_functions.R'))
+source(file.path('_config.R'))
+source(file.path('_fig05_helper_functions.R'))
 library('rdhs')
 plot_dir <- file.path(plot_dir, 'fig_5_additional')
 

@@ -1,4 +1,4 @@
-source(file.path('analysis', '00_config.R'))
+source(file.path('analysis', '_config.R'))
 
 (exp_name <- 'generic_PMCmode_RTSS_vaccSP_IIV')
 fig4A = TRUE
