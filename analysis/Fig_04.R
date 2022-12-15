@@ -105,7 +105,7 @@ if (fig4A) {
   print(pplot)
   f_save_plot(pplot, paste0('Fig4A_PE'),
               file.path(plot_dir), width = 8, height = 10, units = 'in', device_format = device_format)
-  #fwrite(pdat1, file.path(plot_dir, 'csv', 'Fig4A_PE_dat.csv'))
+  fwrite(pdat1, file.path(plot_dir, 'csv', 'Fig4A_PE_dat.csv'))
 
 } #fig4A
 
@@ -218,21 +218,23 @@ if (fig4B_PE) {
   pdat$age_group <- factor(pdat$age_group, levels = c('>0', '>1', 'U2'), labels = c('0-1', '1-2', '0-2'))
   pdat$name <- factor(pdat$name,
                       levels = c('PE_clinical_incidence', 'PE_severe_incidence'),
-                      labels = c('Clinical malaria in children U2 (0-2 years)', 'Severe malaria in children U2 (0-2 years)'))
+                      labels = c('Clinical malaria by age in children U2 (0-2 years)',
+                                 'Severe malaria in children U2 (0-2 years)'))
 
 
   pplot <- ggplot(data = pdat) +
-    geom_hline(yintercept = 0, size = 0.2) +
+        geom_hline(yintercept = c( 0.45), alpha=0) +
+    geom_hline(yintercept = c(0), size = 0.2) +
     geom_col(aes(x = pmc_mode_fct, y = median_val, alpha = age_group, group = interaction(age_group, pmc_mode_fct), fill = pmc_mode_fct),
              position = position_dodge(width = 0.75), size = 0.3, width = 0.7, col = 'black') +
     geom_errorbar(aes(x = pmc_mode_fct, y = median_val, ymin = low_val, ymax = up_val, group = interaction(age_group, pmc_mode_fct)),
                   position = position_dodge(width = 0.75), width = 0.01) +
     facet_wrap(~name, nrow = 2, scales = 'free_y') +
-    scale_y_continuous(labels = comma, expand = c(0, 0)) +
+    scale_y_continuous( expand = c(0, 0), breaks=seq(-0.1, 0.5, 0.1), labels=seq(-0.1, 0.5, 0.1)*100) +
     theme(panel.spacing = unit(1, "lines"),
           axis.ticks.x = element_blank()) +
     labs(x = '',
-         y = 'Annual cases averted\n per 1000 population',
+         y = '% reduction in cases',
          alpha = 'Age group\n(years)',
          fill = 'Scenario',
          col = 'Scenario') +

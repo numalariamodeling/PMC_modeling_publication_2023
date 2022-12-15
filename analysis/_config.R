@@ -21,10 +21,6 @@ ipti_rtss_levels <- c('None', 'IPTi', 'RTS,S', 'IPTi + RTS,S')
 
 
 ###-------------------  Define custom themes and colors
-theme_set(theme_bw())
-customTheme <- f_getCustomTheme() + guides(panel.spacing = unit(1.3, "lines"))
-customTheme_nogrid <- customTheme + theme(panel.grid = element_blank())
-
 device_format <- c('pdf', 'png')
 
 #https://coolors.co/palette/03045e-023e8a-0077b6-0096c7-00b4d8-48cae4-90e0ef-ade8f4-bdedf6
@@ -115,6 +111,10 @@ f_getCustomTheme <- function(fontscl = 1) {
 
   return(customTheme)
 }
+
+theme_set(theme_bw())
+customTheme <- f_getCustomTheme() + guides(panel.spacing = unit(1.3, "lines"))
+customTheme_nogrid <- customTheme + theme(panel.grid = element_blank())
 
 
 gen_pmc_mode_fct <- function(dat) {

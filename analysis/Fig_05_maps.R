@@ -1,6 +1,5 @@
-tbl_opts <- c("striped", "hover", "condensed", "responsive")
-source(file.path('_config.R'))
-source(file.path('_fig05_helper_functions.R'))
+source(file.path('analysis','_config.R'))
+source(file.path('analysis','_fig05_helper_functions.R'))
 
 getPalette <- rev(colorRampPalette(brewer.pal(8, "RdYlBu"))(12))
 getPalette2 <- rev(colorRampPalette(brewer.pal(8, "YlGnBu"))(12))
