@@ -70,12 +70,12 @@ if (pop_map) {
   pplot2 <- nga_pop %>%
     #pivot_longer(cols = -c('State', 'ADM1_NAME')) %>%
     ggplot() +
-    geom_col(aes(x = reorder(State, -total_pop), y = total_pop / 1000, col = 'total', fill=total_pop), position = position_dodge()) + #+ facet_wrap(~name, scales='free_y')
-    geom_col(aes(x = reorder(State, -total_pop), y = total_pop * prop_popU2_totalpop / 1000, col = 'U2',fill=total_pop), position = position_dodge(), fill = NA) +
+    geom_col(aes(x = reorder(State, -total_pop), y = total_pop / 1000, col = 'total', fill = total_pop), position = position_dodge()) + #+ facet_wrap(~name, scales='free_y')
+    geom_col(aes(x = reorder(State, -total_pop), y = total_pop * prop_popU2_totalpop / 1000, col = 'U2', fill = total_pop), position = position_dodge(), fill = NA) +
     scale_y_continuous(labels = comma) +
     scale_color_manual(values = c('darkgrey', 'darkred')) +
     labs(color = 'Population', x = 'State (ordered by population)', y = expr('Population 10'^3)) +
-      scale_fill_viridis_c(labels = comma) +
+    scale_fill_viridis_c(labels = comma) +
     customTheme_nogrid +
     guides(fill = "none") +
     theme(legend.position = c(0.8, 0.9)) +
@@ -121,14 +121,14 @@ pplot0 <- admin1_sp.f %>%
 
 
 pplot2 <- ggplot(data = dat) +
-  geom_col(aes(x = reorder(State, -U5_coverage), y = U5_coverage, fill=U5_coverage)) +
+  geom_col(aes(x = reorder(State, -U5_coverage), y = U5_coverage, fill = U5_coverage)) +
   labs(color = 'Population', x = 'State (ordered by treatment coverage)', y = 'Effective clinical\ntreatment coverage U5') +
   geom_hline(yintercept = 0.3193) +
   customTheme_nogrid +
-    scale_fill_viridis_c(labels = comma, lim = c(0.2, 0.5), breaks = seq(0.2, 0.5, 0.1)) +
+  scale_fill_viridis_c(labels = comma, lim = c(0.2, 0.5), breaks = seq(0.2, 0.5, 0.1)) +
   theme(legend.position = 'None') +
   coord_flip()
 
 pplot <- plot_grid(NULL, pplot0, NULL, ncol = 1, rel_heights = c(0.4, 1, 0.4))
-pplot <- plot_grid(pplot, pplot2, ncol = 2,  rel_widths = c(1, 0.8), labels = c('A', 'B'))
+pplot <- plot_grid(pplot, pplot2, ncol = 2, rel_widths = c(1, 0.8), labels = c('A', 'B'))
 f_save_plot(pplot, plot_name = paste0('SI_CM'), width = 10, height = 6, plot_dir = plot_dir)

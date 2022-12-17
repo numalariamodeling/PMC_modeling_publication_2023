@@ -116,14 +116,14 @@ dat_aggr %>%
 
 
 dat_aggr %>%
-        ungroup() %>%
-        filter(name == 'severe_cases_averted' & ipti_mode_fct != 'None') %>%
-        mutate(Annual_EIR = paste0('eir ', Annual_EIR),
-               median = format_num(median_val),
-               low = format_num(low_val),
-               up = format_num(up_val),
-               value = paste0(median, ' (', low, '-', up, ')')) %>%
-        dplyr::select(age_group, Annual_EIR, ipti_mode_fct, value) %>%
-        pivot_wider(names_from = Annual_EIR, values_from = value) %>%
-        kbl() %>%
-        kable_styling(bootstrap_options = tbl_opts, full_width = F, position = "left", fixed_thead = T)
+  ungroup() %>%
+  filter(name == 'severe_cases_averted' & ipti_mode_fct != 'None') %>%
+  mutate(Annual_EIR = paste0('eir ', Annual_EIR),
+         median = format_num(median_val),
+         low = format_num(low_val),
+         up = format_num(up_val),
+         value = paste0(median, ' (', low, '-', up, ')')) %>%
+  dplyr::select(age_group, Annual_EIR, ipti_mode_fct, value) %>%
+  pivot_wider(names_from = Annual_EIR, values_from = value) %>%
+  kbl() %>%
+  kable_styling(bootstrap_options = tbl_opts, full_width = F, position = "left", fixed_thead = T)

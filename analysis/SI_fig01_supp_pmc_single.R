@@ -69,7 +69,7 @@ if (pmc_offset) {
                  arrow = arrow(length = unit(0.3, "cm")))
 
   print(pplot)
-  pplot2 <- plot_grid(pplot, pplot_IIV, labels=c('A','B'), nrow=1, align='h', rel_widths = c(1, 0.8))
+  pplot2 <- plot_grid(pplot, pplot_IIV, labels = c('A', 'B'), nrow = 1, align = 'h', rel_widths = c(1, 0.8))
   f_save_plot(pplot2, plot_name = paste0('Fig1A_supp'), width = 10, height = 4, plot_dir = plot_dir)
 
 } # pmc_offset
@@ -78,10 +78,10 @@ if (pmc_offset) {
 ## Supp  -  PMC efficacy by EIR and reference
 if (pmc_single_supp) {
 
-  trial_PEs <- fread(file.path("reference_dat", "trial_settings.csv")) %>%
+  trial_PEs <- fread(file.path("../data_files", "trial_settings.csv")) %>%
     mutate(n_rounds = nchar(gsub("[^0-9]+", "", ipti_touchpoints_mth)))
 
-  esu_PE <- fread(file.path("reference_dat", "IPTi_effectiveness.csv")) %>%
+  esu_PE <- fread(file.path("../data_files", "IPTi_effectiveness.csv")) %>%
     mutate(country_abbr = 'AFR') %>%
     dplyr::filter(Author == 'Esu', year == 2021, Drug %in% c("total", "SP") & Outcome == "clinical malaria") %>%
     dplyr::mutate(author_year = paste(country_abbr, year, Author, sep = "_"),
@@ -309,14 +309,14 @@ if (pmc_IIV) {
 
 
   pplot <- ggplot() +
-    geom_histogram(data = dat, aes(x = distr), fill = 'deepskyblue3', col='black', size=0.2) +
+    geom_histogram(data = dat, aes(x = distr), fill = 'deepskyblue3', col = 'black', size = 0.2) +
     geom_line(aes(x = x2, y = y2), col = 'red') +
     customTheme_nogrid +
     scale_y_continuous(lim = c(0, 18), expand = c(0, 0)) +
-    scale_x_continuous(lim = c(0.75, 0.9), breaks=seq(0.75, 0.9, 0.025)) +
+    scale_x_continuous(lim = c(0.75, 0.9), breaks = seq(0.75, 0.9, 0.025)) +
     labs(x = 'initial efficacy', y = 'Freuqency (n=100)')
 
-    print(pplot)
+  print(pplot)
   f_save_plot(pplot, plot_name = paste0('S1Fig_pmcIIV'), width = 6, height = 3.5, plot_dir = plot_dir)
 
 

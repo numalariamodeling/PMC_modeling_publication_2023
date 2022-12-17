@@ -1,13 +1,15 @@
+## Fig_04.R
 source(file.path('analysis', '_config.R'))
-exp_name <- 'generic_PMCmode_RTSS_vaccSP_IIV'
+(exp_name <- 'generic_PMCmode_RTSS_vaccSP_IIV')
 
-fig4A <- TRUE
-fig4B <- TRUE
-fig4B_cum <- TRUE
-fig4C <- TRUE
-fig4C_cum <- TRUE
+fig4A <- T
+fig4B <- T
+fig4B_cum <- T
+fig4C <- T
+fig4C_cum <- T
+result_tables <- T
+
 y <- 2.0
-scenario_labels <- c('None', 'PMC-3', 'PMC-4', 'PMC-5', 'PMC-6', 'PMC-7', 'RTS,S', 'PMC-3 + RTS,S')
 
 cases_df <- fread(file.path(simout_dir, exp_name, 'simdat_aggr_week.csv')) %>%
   rename_with(~gsub('ipti', 'pmc', .x))
@@ -65,13 +67,11 @@ if (fig4A) {
     theme(panel.grid.major = element_blank(),
           legend.position = 'None')
 
-
   print(pplot)
 
   f_save_plot(pplot, paste0('Fig4A'),
               file.path(plot_dir), width = 8, height = 10, units = 'in', device_format = device_format)
   fwrite(pdat1, file.path(plot_dir, 'csv', 'Fig4A_dat.csv'))
-
 
   #### PE
   out_vars <- c('PE_clinical_incidence', 'PE_severe_incidence')
@@ -223,14 +223,18 @@ if (fig4B_PE) {
 
 
   pplot <- ggplot(data = pdat) +
-        geom_hline(yintercept = c( 0.45), alpha=0) +
+    geom_hline(yintercept = c(0.45), alpha = 0) +
     geom_hline(yintercept = c(0), size = 0.2) +
-    geom_col(aes(x = pmc_mode_fct, y = median_val, alpha = age_group, group = interaction(age_group, pmc_mode_fct), fill = pmc_mode_fct),
+    geom_col(aes(x = pmc_mode_fct, y = median_val, alpha = age_group,
+                 group = interaction(age_group, pmc_mode_fct), fill = pmc_mode_fct),
              position = position_dodge(width = 0.75), size = 0.3, width = 0.7, col = 'black') +
-    geom_errorbar(aes(x = pmc_mode_fct, y = median_val, ymin = low_val, ymax = up_val, group = interaction(age_group, pmc_mode_fct)),
+    geom_errorbar(aes(x = pmc_mode_fct, y = median_val, ymin = low_val, ymax = up_val,
+                      group = interaction(age_group, pmc_mode_fct)),
                   position = position_dodge(width = 0.75), width = 0.01) +
     facet_wrap(~name, nrow = 2, scales = 'free_y') +
-    scale_y_continuous( expand = c(0, 0), breaks=seq(-0.1, 0.5, 0.1), labels=seq(-0.1, 0.5, 0.1)*100) +
+    scale_y_continuous(expand = c(0, 0),
+                       breaks = seq(-0.1, 0.5, 0.1),
+                       labels = seq(-0.1, 0.5, 0.1) * 100) +
     theme(panel.spacing = unit(1, "lines"),
           axis.ticks.x = element_blank()) +
     labs(x = '',
@@ -308,7 +312,7 @@ if (fig4B_cum) {
                       group = interaction(age_group, pmc_mode_fct)),
                   position = position_dodge(width = w), width = 0.01) +
     geom_errorbar(data = subset(pdat, age_group == 'U2' &
-      pmc_mode_fct2 != 'None' &
+      pmc_mode_fct != 'None' &
       name %in% outcome_cols),
                   aes(x = pmc_mode_fct, y = median_val, ymin = low_val, ymax = up_val, group = pmc_mode_fct),
                   position = position_dodge(), width = 0.01) +
@@ -376,10 +380,13 @@ if (fig4B_PE) {
     geom_col(data = subset(pdat, age_group == 'U2' &
       pmc_mode_fct != 'None' &
       name %in% outcome_cols),
-             aes(x = pmc_mode_fct, y = median_val, fill = pmc_mode_fct), position = position_dodge(), size = 0.3, width = w - 0.1) +
-    geom_col(aes(x = pmc_mode_fct, y = median_val, linetype = age_group, group = interaction(age_group, pmc_mode_fct)),
+             aes(x = pmc_mode_fct, y = median_val, fill = pmc_mode_fct),
+             position = position_dodge(), size = 0.3, width = w - 0.1) +
+    geom_col(aes(x = pmc_mode_fct, y = median_val, linetype = age_group,
+                 group = interaction(age_group, pmc_mode_fct)),
              fill = 'white', col = 'black', position = position_dodge(), alpha = 0.7, size = 0.3, width = w) +
-    geom_errorbar(aes(x = pmc_mode_fct, y = median_val, ymin = low_val, ymax = up_val, group = interaction(age_group, pmc_mode_fct)),
+    geom_errorbar(aes(x = pmc_mode_fct, y = median_val, ymin = low_val, ymax = up_val,
+                      group = interaction(age_group, pmc_mode_fct)),
                   position = position_dodge(width = w), width = 0.01) +
     geom_errorbar(data = subset(pdat, age_group == 'U2' &
       pmc_mode_fct != 'None' &
@@ -474,12 +481,10 @@ if (fig4C) {
 
   pplot2 <- ggplot(data = pdat2) +
     geom_hline(aes(yintercept = yint), alpha = 0) +
-    geom_col(aes(x = pmc_mode_fct, y = median_val, col = pmc_mode_fct),
-             position = position_dodge(width = 0.9), fill = 'NA', linetype = 'dashed', size = 1, width = 0.8, show.legend = F, alpha = 0.6) +
+    geom_col(aes(x = pmc_mode_fct, y = median_val, col = pmc_mode_fct), position = position_dodge(width = 0.9),
+             fill = 'NA', linetype = 'dashed', size = 1, width = 0.8, show.legend = F, alpha = 0.6) +
     geom_col(aes(x = pmc_mode_fct, y = median_val_subrtss, fill = pmc_mode_fct),
              position = position_dodge(width = 0.9), size = 1, width = 0.8, show.legend = F) +
-    #geom_col(data = pdat_rtss,
-    #         aes(x = pmc_mode_fct, y = median_val), fill = 'white', position = position_dodge(width = 0.9), size = 0.3, width = 0.8) +
     geom_errorbar(aes(x = pmc_mode_fct, y = median_val, ymin = low_val, ymax = up_val), width = 0.01) +
     facet_wrap(~name, nrow = 2, scales = 'free_y') +
     scale_y_continuous(labels = comma, expand = c(0, 0)) +
@@ -567,34 +572,16 @@ if (fig4C_cum) {
     theme(legend.position = 'None')
 
 
-  #### PMC in addition to RTSS
-  # pplot2 <- ggplot(data = subset(pdat, pmc_coverage == 0.8 & rtss_coverage == 0.8)) +
-  #   geom_hline(aes(yintercept = yint), alpha = 0) +
-  #   geom_col(aes(x = pmc_mode_fct, y = median_val, col = pmc_mode_fct),
-  #            fill = 'NA', position = position_dodge(width = 0.9), linetype = 'dashed', size = 1, width = 0.8, show.legend = F, alpha = 0.6) +
-  #   geom_col(data = pdat_rtss,
-  #            aes(x = pmc_mode_fct, y = median_val, fill = pmc_mode_fct), position = position_dodge(width = 0.9), size = 0.3, width = 0.8) +
-  #   geom_errorbar(aes(x = pmc_mode_fct, y = median_val, ymin = low_val, ymax = up_val), width = 0.01) +
-  #   facet_wrap(~name, nrow = 2, scales = 'free_y') +
-  #   scale_y_continuous(labels = comma, expand = c(0, 0)) +
-  #   labs(subtitle = 'PMC in addition to RTS,S\n',
-  #        x = 'Age (months)',
-  #        y = 'Cumulative cases averted per\n1000 population in children U2',
-  #        color = '', fill = '') +
-  #   scale_color_manual(values = c(pmc_cols[c(1, 2, 5)], rtss_col)) +
-  #   scale_fill_manual(values = c(pmc_cols[c(1, 2, 5)], rtss_col)) +
-  #   customTheme_nogrid +
-  #   theme(legend.position = 'None')
-
-
   pplot2 <- ggplot(data = subset(pdat, pmc_coverage == 0.8 & rtss_coverage == 0.8)) +
     geom_hline(aes(yintercept = yint), alpha = 0) +
     geom_col(aes(x = pmc_mode_fct, y = median_val, col = pmc_mode_fct),
-             position = position_dodge(width = 0.9), fill = 'NA', linetype = 'dashed', size = 1, width = 0.8, show.legend = F, alpha = 0.6) +
+             position = position_dodge(width = 0.9), fill = 'NA', linetype = 'dashed',
+             size = 1, width = 0.8, show.legend = F, alpha = 0.6) +
     geom_col(aes(x = pmc_mode_fct, y = median_val, fill = pmc_mode_fct),
              position = position_dodge(width = 0.9), size = 1, width = 0.8, show.legend = F) +
     geom_col(data = pdat_rtss,
-             aes(x = pmc_mode_fct, y = median_val), fill = 'white', position = position_dodge(width = 0.9), size = 0.3, width = 0.8) +
+             aes(x = pmc_mode_fct, y = median_val), fill = 'white', position = position_dodge(width = 0.9),
+             size = 0.3, width = 0.8) +
     geom_errorbar(aes(x = pmc_mode_fct, y = median_val, ymin = low_val, ymax = up_val), width = 0.01) +
     facet_wrap(~name, nrow = 2, scales = 'free_y') +
     scale_y_continuous(labels = comma, expand = c(0, 0)) +
@@ -619,50 +606,47 @@ if (fig4C_cum) {
 } #fig4C_cum
 
 ### Tables
-cases_df_agegrp <- fread(file.path(simout_dir, exp_name, 'simdat_aggr_agegroup.csv')) %>%
-  rename_with(~gsub('ipti', 'pmc', .x)) %>%
-  filter(age_group %in% c('U1', 'U2'))
+if (result_tables) {
+  cases_df_agegrp <- fread(file.path(simout_dir, exp_name, 'simdat_aggr_agegroup.csv')) %>%
+    rename_with(~gsub('ipti', 'pmc', .x)) %>%
+    filter(age_group %in% c('U1', 'U2'))
 
-cases_df <- fread(file.path(simout_dir, exp_name, 'simdat_aggr_year.csv')) %>%
-  rename_with(~gsub('ipti', 'pmc', .x)) %>%
-  mutate(year = ifelse(year >= 2020, year - 2020, year)) %>%
-  filter(year < 2) %>%
-  mutate(age_group = paste0('>', year)) %>%
-  dplyr::select(colnames(cases_df_agegrp)) %>%
-  bind_rows(cases_df_agegrp)
+  cases_df <- fread(file.path(simout_dir, exp_name, 'simdat_aggr_year.csv')) %>%
+    rename_with(~gsub('ipti', 'pmc', .x)) %>%
+    mutate(year = ifelse(year >= 2020, year - 2020, year)) %>%
+    filter(year < 2) %>%
+    mutate(age_group = paste0('>', year)) %>%
+    dplyr::select(colnames(cases_df_agegrp)) %>%
+    bind_rows(cases_df_agegrp)
 
-pdat <- cases_df %>%
-  mutate(pmc_mode = ifelse(pmc_rtss_cov == '0-0.8', 'RTS,S', pmc_mode),
-         pmc_mode = ifelse(pmc_rtss_cov == '0-0', 'None', pmc_mode)) %>%
-  gen_pmc_mode_fct() %>%
-  filter((pmc_rtss_cov == '0.8-0.8' & pmc_mode == '3tp') | (pmc_rtss_cov %in% c('0-0.8', '0.8-0'))) %>%
-  filter(!(pmc_mode %in% c('4tp', '5tp'))) %>%
-  mutate(yint = ifelse(name == 'clinical_cases', 110, 1.5), yint_min = 0,
-         pmc_mode_fct = ifelse(pmc_rtss_cov == '0.8-0.8', 'PMC-3+RTS,S', as.character(pmc_mode_fct)))
+  pdat <- cases_df %>%
+    mutate(pmc_mode = ifelse(pmc_rtss_cov == '0-0.8', 'RTS,S', pmc_mode),
+           pmc_mode = ifelse(pmc_rtss_cov == '0-0', 'None', pmc_mode)) %>%
+    gen_pmc_mode_fct() %>%
+    filter((pmc_rtss_cov == '0.8-0.8' & pmc_mode == '3tp') | (pmc_rtss_cov %in% c('0-0.8', '0.8-0'))) %>%
+    filter(!(pmc_mode %in% c('4tp', '5tp'))) %>%
+    mutate(yint = ifelse(name == 'clinical_cases', 110, 1.5), yint_min = 0,
+           pmc_mode_fct = ifelse(pmc_rtss_cov == '0.8-0.8', 'PMC-3+RTS,S', as.character(pmc_mode_fct)))
 
-pdat$pmc_mode_fct <- factor(pdat$pmc_mode_fct, levels = scenario_labels, labels = scenario_labels)
+  pdat$pmc_mode_fct <- factor(pdat$pmc_mode_fct, levels = scenario_labels, labels = scenario_labels)
+  dat_table(pdat, qc(age_group, Annual_EIR, name))
 
+  pdat %>%
+    filter(name %in% c('clinical_cases', 'clinical_cases_averted', 'PE_clinical_incidence') & age_group != 'U1') %>%
+    mutate(median = ifelse(name %in% c('PE_clinical_incidence', 'PE_severe_incidence'), format_num(median_val * 100, 1), format_num(median_val)),
+           low = ifelse(name %in% c('PE_clinical_incidence', 'PE_severe_incidence'), format_num(low_val * 100, 1), format_num(low_val)),
+           up = ifelse(name %in% c('PE_clinical_incidence', 'PE_severe_incidence'), format_num(up_val * 100, 1), format_num(up_val)),
+           value = paste0(median, ' (', low, '-', up, ')')) %>%
+    select(age_group, pmc_mode_fct, name, value) %>%
+    pivot_wider(names_from = name, values_from = value)
 
-dat_table(pdat, qc(age_group, Annual_EIR, name))
+  pdat %>%
+    filter(name %in% c('severe_cases', 'severe_cases_averted', 'PE_severe_incidence') & age_group != 'U1') %>%
+    mutate(median = ifelse(name %in% c('PE_clinical_incidence', 'PE_severe_incidence'), format_num(median_val * 100, 1), format_num(median_val)),
+           low = ifelse(name %in% c('PE_clinical_incidence', 'PE_severe_incidence'), format_num(low_val * 100, 1), format_num(low_val)),
+           up = ifelse(name %in% c('PE_clinical_incidence', 'PE_severe_incidence'), format_num(up_val * 100, 1), format_num(up_val)),
+           value = paste0(median, ' (', low, '-', up, ')')) %>%
+    select(age_group, pmc_mode_fct, name, value) %>%
+    pivot_wider(names_from = name, values_from = value)
 
-pdat %>%
-  filter(name %in% c('clinical_cases', 'clinical_cases_averted', 'PE_clinical_incidence') & age_group != 'U1') %>%
-  mutate(median = ifelse(name %in% c('PE_clinical_incidence', 'PE_severe_incidence'), format_num(median_val * 100, 1), format_num(median_val)),
-         low = ifelse(name %in% c('PE_clinical_incidence', 'PE_severe_incidence'), format_num(low_val * 100, 1), format_num(low_val)),
-         up = ifelse(name %in% c('PE_clinical_incidence', 'PE_severe_incidence'), format_num(up_val * 100, 1), format_num(up_val)),
-         value = paste0(median, ' (', low, '-', up, ')')) %>%
-  select(age_group, pmc_mode_fct2, name, value) %>%
-  pivot_wider(names_from = name, values_from = value) %>%
-  kbl() %>%
-  kable_styling(bootstrap_options = tbl_opts, full_width = F, position = "left", fixed_thead = T)
-
-pdat %>%
-  filter(name %in% c('severe_cases', 'severe_cases_averted', 'PE_severe_incidence') & age_group != 'U1') %>%
-  mutate(median = ifelse(name %in% c('PE_clinical_incidence', 'PE_severe_incidence'), format_num(median_val * 100, 1), format_num(median_val)),
-         low = ifelse(name %in% c('PE_clinical_incidence', 'PE_severe_incidence'), format_num(low_val * 100, 1), format_num(low_val)),
-         up = ifelse(name %in% c('PE_clinical_incidence', 'PE_severe_incidence'), format_num(up_val * 100, 1), format_num(up_val)),
-         value = paste0(median, ' (', low, '-', up, ')')) %>%
-  select(age_group, pmc_mode_fct2, name, value) %>%
-  pivot_wider(names_from = name, values_from = value) %>%
-  kbl() %>%
-  kable_styling(bootstrap_options = tbl_opts, full_width = F, position = "left", fixed_thead = T)
+}

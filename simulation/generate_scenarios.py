@@ -103,7 +103,6 @@ def create_scenarios_mastercsv(param_dic, fname_out, high_access_frac=0, return_
     df['CM_filename'] = [os.path.join('CM', f'CM_constant_{f_cov(yy)}coverage.csv') for yy in
                          df['cm_coverage']]
 
-
     try:
         df['RTSS_filename'] = [os.path.join('RTSS', f'RTSS_{xx}_{f_cov(yy)}coverage.csv') for xx, yy in
                                zip(df['rtss_mode'], df['rtss_coverage'])]
@@ -227,7 +226,7 @@ def intervention_inputs(param_dic, CM=False, RTSS=False, PMC=False):
                     elif rtss_mode == 'campboost2_flexible':
                         coverage_levels = [rtss] + [0.5] * 3 + [booster_coverage_rtss]
                     else:
-                        if rtss=='custom':
+                        if rtss == 'custom':
                             coverage_levels = [np.mean([0.673, 0.697, 0.493])] + [0.493]
                         else:
                             coverage_levels = [rtss] + [booster_coverage_rtss] * (num_rtss_rounds - 1)
@@ -248,7 +247,7 @@ def intervention_inputs(param_dic, CM=False, RTSS=False, PMC=False):
                          'distribution_name': ['CONSTANT_DISTRIBUTION'] * num_rtss_rounds,
                          'distribution_std': [1] * num_rtss_rounds,
                          'run_col': ['run'] * num_rtss_rounds})
-                if rtss=='custom':
+                if rtss == 'custom':
                     rtss_csv = f'RTSS_{rtss_mode}_{rtss}coverage.csv'
                 else:
                     rtss_csv = f'RTSS_{rtss_mode}_{int(rtss * 100)}coverage.csv'
@@ -260,7 +259,7 @@ def intervention_inputs(param_dic, CM=False, RTSS=False, PMC=False):
                 df.to_csv(os.path.join(base_scenario_filepath, 'RTSS', rtss_csv))
 
     if PMC == True:
-        pmc_3tp =  [int(round(x * (365 / 12), 0)) for x in [10 / 4, 14 / 4, 9]]
+        pmc_3tp = [int(round(x * (365 / 12), 0)) for x in [10 / 4, 14 / 4, 9]]
         pmc_touchpoints_dic = {
             '1tp': pmc_3tp[0],
             '3tp': pmc_3tp,
@@ -490,8 +489,6 @@ if __name__ == "__main__":
     n_scen = n_scen + [len(df)]
     print([len(df)])
 
-
-
     """
     2b - coverage - EIR _constant
     """
@@ -566,14 +563,13 @@ if __name__ == "__main__":
     n_scen = n_scen + [len(df)]
     print([len(df)])
 
-
     """
     2c - operational coverage - EIR _constant 
     """
     param_dic = get_parameter_space()
     param_dic.update({'pmc_coverage': ['custom']})
     param_dic.update({'rtss_coverage': ['custom']})
-    param_dic.update({'pmc_mode': [ '3tp', '4tp', '4tp2ndyr', '5tp', '5tp2ndyr', '6tp2ndyr', '7tp2ndyr']})
+    param_dic.update({'pmc_mode': ['3tp', '4tp', '4tp2ndyr', '5tp', '5tp2ndyr', '6tp2ndyr', '7tp2ndyr']})
     intervention_inputs(param_dic, PMC=True, RTSS=True)
 
     param_dic = get_parameter_space()
@@ -584,7 +580,8 @@ if __name__ == "__main__":
     param_dic.update({'annual_EIR': [1, 4, 16, 32, 64, 128]})
     param_dic.update({'seasonality': ['constant']})  # 'constant','season2','season3'
     create_scenarios_mastercsv(param_dic, fname_out='generic_PMCcov_EIR_PMC3_constant_operational')
-    df = remove_duplicate_zerocoverage_scenarios(scen_csv='generic_PMCcov_EIR_PMC3_constant_operational.csv', overwrite=True,
+    df = remove_duplicate_zerocoverage_scenarios(scen_csv='generic_PMCcov_EIR_PMC3_constant_operational.csv',
+                                                 overwrite=True,
                                                  return_csv=True)
     n_scen = n_scen + [len(df)]
     print([len(df)])
@@ -597,20 +594,22 @@ if __name__ == "__main__":
     param_dic.update({'annual_EIR': [1, 4, 16, 32, 64, 128]})
     param_dic.update({'seasonality': ['constant']})  # 'constant','season2','season3'
     create_scenarios_mastercsv(param_dic, fname_out='generic_PMCcov_EIR_PMC5tp2ndyr_constant_operational')
-    df = remove_duplicate_zerocoverage_scenarios(scen_csv='generic_PMCcov_EIR_PMC5tp2ndyr_constant_operational.csv', overwrite=True,
+    df = remove_duplicate_zerocoverage_scenarios(scen_csv='generic_PMCcov_EIR_PMC5tp2ndyr_constant_operational.csv',
+                                                 overwrite=True,
                                                  return_csv=True)
     n_scen = n_scen + [len(df)]
     print([len(df)])
 
     param_dic = get_parameter_space()
     param_dic.update({'cm_coverage': [0.2, 0.4, 0.6]})
-    param_dic.update({'pmc_coverage': [0,  'custom']})
+    param_dic.update({'pmc_coverage': [0, 'custom']})
     param_dic.update({'rtss_coverage': [0]})
     param_dic.update({'pmc_mode': ['7tp2ndyr']})
     param_dic.update({'annual_EIR': [1, 4, 16, 32, 64, 128]})
     param_dic.update({'seasonality': ['constant']})  # 'constant','season2','season3'
     create_scenarios_mastercsv(param_dic, fname_out='generic_PMCcov_EIR_PMC7_constant_operational')
-    df = remove_duplicate_zerocoverage_scenarios(scen_csv='generic_PMCcov_EIR_PMC7_constant_operational.csv', overwrite=True,
+    df = remove_duplicate_zerocoverage_scenarios(scen_csv='generic_PMCcov_EIR_PMC7_constant_operational.csv',
+                                                 overwrite=True,
                                                  return_csv=True)
     n_scen = n_scen + [len(df)]
     print([len(df)])
@@ -623,7 +622,8 @@ if __name__ == "__main__":
     param_dic.update({'annual_EIR': [1, 4, 16, 32, 64, 128]})
     param_dic.update({'seasonality': ['constant']})  # 'constant','season2','season3'
     create_scenarios_mastercsv(param_dic, fname_out='generic_RTSScov_EIR_constant_operational')
-    df = remove_duplicate_zerocoverage_scenarios(scen_csv='generic_RTSScov_EIR_constant_operational.csv', overwrite=True,
+    df = remove_duplicate_zerocoverage_scenarios(scen_csv='generic_RTSScov_EIR_constant_operational.csv',
+                                                 overwrite=True,
                                                  return_csv=True)
     n_scen = n_scen + [len(df)]
     print([len(df)])
@@ -637,16 +637,17 @@ if __name__ == "__main__":
     param_dic.update({'seasonality': ['constant']})  # 'constant','season2','season3'
     create_scenarios_mastercsv(param_dic, fname_out='generic_PMC3_RTSScov_EIR_constant_operational')
 
-    df = remove_duplicate_zerocoverage_scenarios(scen_csv='generic_PMC3_RTSScov_EIR_constant_operational.csv', overwrite=True,
+    df = remove_duplicate_zerocoverage_scenarios(scen_csv='generic_PMC3_RTSScov_EIR_constant_operational.csv',
+                                                 overwrite=True,
                                                  return_csv=True)
     df['pmc_coverage'] = df['rtss_coverage']
     df['PMC_filename'] = [x.replace('RTSS_constant_', 'PMC_3tp_') for x in df['RTSS_filename']]
     df['PMC_filename'] = [x.replace('RTSS', 'PMC') for x in df['PMC_filename']]
     df.to_csv(
-        os.path.join(project_path, 'simulation_inputs/generic_cohort_ds', 'generic_PMC3_RTSScov_EIR_constant_operational.csv'))
+        os.path.join(project_path, 'simulation_inputs/generic_cohort_ds',
+                     'generic_PMC3_RTSScov_EIR_constant_operational.csv'))
     n_scen = n_scen + [len(df)]
     print([len(df)])
-
 
     """
     3 - Standard PMC and RTS,S by CM sweep  (supplement)

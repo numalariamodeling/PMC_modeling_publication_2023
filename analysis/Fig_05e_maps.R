@@ -1,5 +1,5 @@
-source(file.path('analysis','_config.R'))
-source(file.path('analysis','_fig05_helper_functions.R'))
+source(file.path('analysis', '_config.R'))
+source(file.path('analysis', '_fig05_helper_functions.R'))
 
 getPalette <- rev(colorRampPalette(brewer.pal(8, "RdYlBu"))(12))
 getPalette2 <- rev(colorRampPalette(brewer.pal(8, "YlGnBu"))(12))
@@ -308,8 +308,8 @@ df_out$scen <- factor(df_out$scen,
 
 
 plot_dat <- df_out %>% filter(scen == 'PMC-3')
-tapply(plot_dat$PE_clinical_cases* 100, plot_dat$coveragemode, summary)
-tapply(plot_dat$PE_severe_cases* 100, plot_dat$coveragemode, summary)
+tapply(plot_dat$PE_clinical_cases * 100, plot_dat$coveragemode, summary)
+tapply(plot_dat$PE_severe_cases * 100, plot_dat$coveragemode, summary)
 
 tapply(plot_dat$clinical_cases_averted, plot_dat$coveragemode, summary)
 tapply(plot_dat$severe_cases_averted, plot_dat$coveragemode, summary)
@@ -318,15 +318,16 @@ tapply(plot_dat$clinical_cases_averted_pop, plot_dat$coveragemode, summary)
 tapply(plot_dat$severe_cases_averted_pop, plot_dat$coveragemode, summary)
 
 #### All scenarios
-plot_dat <- df_out %>% group_by(coveragemode,scen) %>%
-  filter(scen!='counterfactual') %>%
-  summarize(PE_clinical_cases=mean(PE_clinical_cases),
-            PE_severe_cases=mean(PE_severe_cases),
-            clinical_cases_averted=mean(clinical_cases_averted),
-            severe_cases_averted=mean(severe_cases_averted)) %>%
-  pivot_longer(cols=-c(coveragemode,scen)) %>%
-  pivot_wider(names_from = coveragemode, values_from=value) %>%
-  mutate(diff = target/operational)
+plot_dat <- df_out %>%
+  group_by(coveragemode, scen) %>%
+  filter(scen != 'counterfactual') %>%
+  summarize(PE_clinical_cases = mean(PE_clinical_cases),
+            PE_severe_cases = mean(PE_severe_cases),
+            clinical_cases_averted = mean(clinical_cases_averted),
+            severe_cases_averted = mean(severe_cases_averted)) %>%
+  pivot_longer(cols = -c(coveragemode, scen)) %>%
+  pivot_wider(names_from = coveragemode, values_from = value) %>%
+  mutate(diff = target / operational)
 
 tapply(plot_dat$diff, plot_dat$name, summary)
 

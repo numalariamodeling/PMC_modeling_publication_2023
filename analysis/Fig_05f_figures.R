@@ -159,7 +159,7 @@ plotdat <- df %>%
   dplyr::summarise(n.val = n(),
                    sd.val = weightedSd(value, pop_U2, na.rm = TRUE),
                    mean_val_unw = mean(value),
-                   mean_val = weighted.mean(value,pop_U2),
+                   mean_val = weighted.mean(value, pop_U2),
                    median_val_unw = median(value),
                    median_val = weightedMedian(value, pop_U2),
                    low_val = quantile(value, probs = 0.05, na.rm = TRUE),

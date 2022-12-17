@@ -1,9 +1,11 @@
+#Fig_02.R
 source(file.path('analysis', '_config.R'))
 
 (exp_name <- 'generic_PMC_RTSS_EIR_vaccSP_IIV')
 
-Fig2AB = TRUE
-Fig2CD = TRUE
+Fig2AB <- T
+Fig2CD <- T
+result_tables <- T
 
 ## Weekly or monthly age
 if (Fig2AB) {
@@ -58,9 +60,7 @@ if (Fig2AB) {
   f_save_plot(pplot, paste0('Fig2A'),
               file.path(plot_dir), width = 10, height = 5, units = 'in', device_format = device_format)
   #fwrite(pdat, file.path(plot_dir, 'csv', 'Fig2A.csv'))
-
-
-}
+} # Fig2AB
 
 if (Fig2CD) {
   cases_df_agegrp <- fread(file.path(simout_dir, exp_name, 'simdat_aggr_agegroup.csv')) %>%
@@ -79,7 +79,6 @@ if (Fig2CD) {
   cases_df$pmc_mode_fct <- factor(cases_df$pmc_mode_fct,
                                   levels = (c('None', 'PMC-3', 'RTS,S', 'PMC-3 + RTS,S')),
                                   labels = (c('None', 'PMC-3', 'RTS,S', 'PMC-3 + RTS,S')))
-
 
   p1 <- cases_df %>%
     filter(age_group == 'U2' &
@@ -122,72 +121,31 @@ if (Fig2CD) {
 
   f_save_plot(pplot, paste0('Fig2CD_U2'),
               file.path(plot_dir), width = 15, height = 3, units = 'in', device_format = device_format)
-
-
-  #### Supp, U1
-  p1 <- cases_df %>%
-    filter(age_group == 'U1' &
-             pmc_mode_fct != 'None' &
-             name %in% c('clinical_cases_averted', 'PE_clinical_incidence')) %>%
-    ggplot() +
-    geom_hline(yintercept = 0.6, alpha = 0) +
-    geom_hline(yintercept = 0) +
-    geom_line(aes(x = Annual_EIR, y = median_val, col = pmc_mode_fct)) +
-    geom_ribbon(aes(x = Annual_EIR, ymin = low_val, ymax = up_val, fill = pmc_mode_fct), alpha = 0.3) +
-    facet_wrap(~name, scales = 'free') +
-    scale_x_log10(breaks = unique(dat_aggr$Annual_EIR)) +
-    scale_color_manual(values = c(pmc_cols[c(1)], rtss_col, rtss_pmc_cols[2])) +
-    scale_fill_manual(values = c(pmc_cols[c(1)], rtss_col, rtss_pmc_cols[2])) +
-    customTheme_nogrid +
-    labs(caption = '') +
-    theme(legend.position = 'right')
-
-  p2 <- cases_df %>%
-    filter(age_group == 'U1' &
-             pmc_mode_fct != 'None' &
-             name %in% c('severe_cases_averted', 'PE_severe_incidence')) %>%
-    mutate(low_val = ifelse(low_val < -0.1, -0.1, low_val)) %>%
-    ggplot() +
-    geom_hline(yintercept = 0.6, alpha = 0) +
-    geom_hline(yintercept = 0) +
-    geom_line(aes(x = Annual_EIR, y = median_val, col = pmc_mode_fct)) +
-    geom_ribbon(aes(x = Annual_EIR, ymin = low_val, ymax = up_val, fill = pmc_mode_fct), alpha = 0.3) +
-    facet_wrap(~name, scales = 'free') +
-    scale_x_log10(breaks = unique(dat_aggr$Annual_EIR)) +
-    scale_color_manual(values = c(pmc_cols[c(1)], rtss_col, rtss_pmc_cols[2])) +
-    scale_fill_manual(values = c(pmc_cols[c(1)], rtss_col, rtss_pmc_cols[2])) +
-    customTheme_nogrid +
-    labs(caption = '') +
-    theme(legend.position = 'right')
-
-  pplot <- plot_combine(list(p1, p2), ncol = 2, labels = c('C', 'D'))
-
-  print(pplot)
-  f_save_plot(pplot, paste0('Fig2CD_U1'),
-              file.path(plot_dir), width = 15, height = 3, units = 'in', device_format = device_format)
-
-  fwrite(cases_df, file.path(plot_dir,'csv','Fig2CD_dat.csv'))
-
-  ### Table for text
-  table(cases_df$pmc_mode_fct)
-  tdf <- cases_df %>%
-    filter(age_group == 'U2' &
-             pmc_mode_fct != 'None' &
-             name %in% c('clinical_cases_averted', 'severe_cases_averted')) %>%
-    dplyr::select(Annual_EIR, age_group ,name, pmc_mode_fct, mean_val) %>%
-    pivot_wider(names_from =pmc_mode_fct, values_from =mean_val  ) %>%
-    mutate(combo_to_rtss =`PMC-3 + RTS,S`/  `RTS,S` ,
-    combo_to_pmc=`PMC-3 + RTS,S`/  `PMC-3` )
-
-  tapply(tdf$combo_to_rtss, tdf$name, summary)
-  tapply(tdf$combo_to_pmc, tdf$name, summary)
-
-
+  fwrite(cases_df, file.path(plot_dir, 'csv', 'Fig2CD_dat.csv'))
 
   rm(pplot, cases_df, p1, p2)
 }  #Fig2CD
 
 if (result_tables) {
+  (exp_name <- 'generic_PMC_RTSS_EIR_vaccSP_IIV')
+
+  ### Table for text
+  cases_df <- fread(file.path(plot_dir, 'csv', 'Fig2CD_dat.csv'))
+
+  table(cases_df$pmc_mode_fct)
+  tdf <- cases_df %>%
+    filter(age_group == 'U2' &
+             pmc_mode_fct != 'None' &
+             name %in% c('clinical_cases_averted', 'severe_cases_averted')) %>%
+    dplyr::select(Annual_EIR, age_group, name, pmc_mode_fct, mean_val) %>%
+    pivot_wider(names_from = pmc_mode_fct, values_from = mean_val) %>%
+    mutate(combo_to_rtss = `PMC-3 + RTS,S` / `RTS,S`,
+           combo_to_pmc = `PMC-3 + RTS,S` / `PMC-3`)
+
+  tapply(tdf$combo_to_rtss, tdf$name, summary)
+  tapply(tdf$combo_to_pmc, tdf$name, summary)
+
+
   cases_df <- fread(file.path(simout_dir, exp_name, 'simdat_aggr_agegroup.csv')) %>%
     rename_with(~gsub('ipti', 'pmc', .x)) %>%
     filter(Annual_EIR < eir_max) %>%
@@ -199,7 +157,7 @@ if (result_tables) {
                                   levels = rev(c('None', 'PMC-3', 'RTS,S', 'PMC-3 + RTS,S')),
                                   labels = rev(c('None', 'PMC-3', 'RTS,S', 'PMC-3 + RTS,S')))
 
-  dat_aggr %>%
+  cases_df %>%
     ungroup() %>%
     filter(name == 'clinical_cases') %>%
     mutate(Annual_EIR = paste0('eir ', Annual_EIR),
@@ -208,12 +166,10 @@ if (result_tables) {
            up = format_num(up_val),
            value = paste0(median, ' (', low, '-', up, ')')) %>%
     dplyr::select(age_group, Annual_EIR, pmc_mode_fct, value) %>%
-    pivot_wider(names_from = Annual_EIR, values_from = value) %>%
-    kbl() %>%
-    kable_styling(bootstrap_options = tbl_opts, full_width = F, position = "left", fixed_thead = T)
+    pivot_wider(names_from = Annual_EIR, values_from = value)
 
 
-  dat_aggr %>%
+  cases_df %>%
     ungroup() %>%
     filter(name == 'clinical_cases_averted') %>%
     mutate(Annual_EIR = paste0('eir ', Annual_EIR),
@@ -222,12 +178,10 @@ if (result_tables) {
            up = format_num(up_val),
            value = paste0(median, ' (', low, '-', up, ')')) %>%
     dplyr::select(age_group, Annual_EIR, pmc_mode_fct, value) %>%
-    pivot_wider(names_from = Annual_EIR, values_from = value) %>%
-    kbl() %>%
-    kable_styling(bootstrap_options = tbl_opts, full_width = F, position = "left", fixed_thead = T)
+    pivot_wider(names_from = Annual_EIR, values_from = value)
 
 
-  dat_aggr %>%
+  cases_df %>%
     ungroup() %>%
     filter(name == 'severe_cases') %>%
     mutate(Annual_EIR = paste0('eir ', Annual_EIR),
@@ -236,12 +190,9 @@ if (result_tables) {
            up = format_num(up_val),
            value = paste0(median, ' (', low, '-', up, ')')) %>%
     dplyr::select(age_group, Annual_EIR, pmc_mode_fct, value) %>%
-    pivot_wider(names_from = Annual_EIR, values_from = value) %>%
-    kbl() %>%
-    kable_styling(bootstrap_options = tbl_opts, full_width = F, position = "left", fixed_thead = T)
+    pivot_wider(names_from = Annual_EIR, values_from = value)
 
-
-  dat_aggr %>%
+  cases_df %>%
     ungroup() %>%
     filter(name == 'severe_cases_averted') %>%
     mutate(Annual_EIR = paste0('eir ', Annual_EIR),
@@ -250,9 +201,6 @@ if (result_tables) {
            up = format_num(up_val),
            value = paste0(median, ' (', low, '-', up, ')')) %>%
     dplyr::select(age_group, Annual_EIR, pmc_mode_fct, value) %>%
-    pivot_wider(names_from = Annual_EIR, values_from = value) %>%
-    kbl() %>%
-    kable_styling(bootstrap_options = tbl_opts, full_width = F, position = "left", fixed_thead = T)
-
+    pivot_wider(names_from = Annual_EIR, values_from = value)
 }
 

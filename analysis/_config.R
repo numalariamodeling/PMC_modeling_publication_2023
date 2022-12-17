@@ -4,7 +4,7 @@ a <- lapply(pckg, require, character.only = TRUE)
 rm(a)
 
 plot_dir <- file.path('figures')
-data_path <- file.path('reference_dat')
+data_path <- file.path('../data_files')
 simout_dir <- file.path('postprocessed_output')
 
 
@@ -18,27 +18,27 @@ default_eir <- 32
 default_seasons <- c('season1')  # c('comstant','season1','season2','season3')
 default_Uage <- 'U1'
 ipti_rtss_levels <- c('None', 'IPTi', 'RTS,S', 'IPTi + RTS,S')
+scenario_labels <- c('None', 'PMC-3', 'PMC-4', 'PMC-5', 'PMC-6', 'PMC-7', 'RTS,S', 'PMC-3 + RTS,S')
+
+###-------------------
+
+touchpoints <- list()
+touchpoints[['3tp']] <- round(c(10 / 4, 14 / 4, 9) * (365 / 12), 0)
+touchpoints[['5tp2ndyr']] <- sort(round(c(touchpoints[['3tp']], c(12, 15) * (365 / 12)), 0))
+touchpoints[['7tp']] <- sort(round(c(touchpoints[['3tp']], c(6, 12, 15, 18) * (365 / 12)), 0))
 
 
 ###-------------------  Define custom themes and colors
 device_format <- c('pdf', 'png')
 
-#https://coolors.co/palette/03045e-023e8a-0077b6-0096c7-00b4d8-48cae4-90e0ef-ade8f4-bdedf6
 rtss_col <- '#FBB040'
 pmc_cols <- c('#4EA3D1', '#007BBD', '#CBDB47', '#99CA3C', '#208B3A')
 rtss_pmc_cols <- c('#fa8e9e', '#d97373')
 getPalette <- colorRampPalette(brewer.pal(9, "YlOrRd"))(9)[3:9]
 custom_cols <- c("#4EA3D1", "#007BBD", "#51571C", "#99CA3C", "#208B3A", rtss_col, '#d97373')
 custom_cols2 <- c("#4EA3D1", "#51571C", "#208B3A", rtss_col, '#d97373')
-CustomPalette_sub <- c('#55b748', '#00BFFF', '#FFA500') # if only 1 IPTi mode
-Dark2palette <- colorRampPalette(brewer.pal(8, "Dark2"))(12)
-RdBupalette <- colorRampPalette(brewer.pal(8, "RdBu"))(12)
 RdYlBupalette <- colorRampPalette(brewer.pal(8, "RdYlBu"))(12)
-BrBgpalette <- colorRampPalette(brewer.pal(8, "BrBG"))(12)
 YlGnpalette <- colorRampPalette(brewer.pal(9, "YlGnBu"))(9)
-ORpalette <- colorRampPalette(brewer.pal(9, "Oranges"))(9)
-REpalette <- colorRampPalette(brewer.pal(9, "Reds"))(9)
-
 
 ###------------------- Custom functions
 format_num = function(x, d = 0) {
@@ -118,17 +118,8 @@ customTheme_nogrid <- customTheme + theme(panel.grid = element_blank())
 
 
 gen_pmc_mode_fct <- function(dat) {
-  dat$pmc_mode_fct <- factor(dat$pmc_mode,
-                             levels = c('3tp', '4tp', '4tp2ndyr', '5tp', '5tp2ndyr', '6tp2ndyr', '7tp2ndyr', 'RTS,S'),
-                             labels = c('PMC-3', 'PMC-4', 'PMC-4', 'PMC-5', 'PMC-5', 'PMC-6', 'PMC-7', 'RTS,S'))
-
-  dat$pmc_mode_fct2 <- factor(dat$pmc_mode,
-                              levels = c('3tp', '4tp', '4tp2ndyr', '5tp', '5tp2ndyr', '6tp2ndyr', '7tp2ndyr', 'RTS,S'),
-                              labels = c('PMC-3', 'PMC-4a', 'PMC-4b', 'PMC-5a', 'PMC-5b', 'PMC-6', 'PMC-7', 'RTS,S'))
-
-  dat$pmc_mode_ab <- factor(dat$pmc_mode,
-                            levels = c('3tp', '4tp', '4tp2ndyr', '5tp', '5tp2ndyr', '6tp2ndyr', '7tp2ndyr', 'RTS,S'),
-                            labels = c('infants', 'infants', 'extended', 'infants', 'extended', 'extended', 'extended', 'RTS,S'))
-
+  pmc_levels <- c('3tp', '4tp', '4tp2ndyr', '5tp', '5tp2ndyr', '6tp2ndyr', '7tp2ndyr', 'RTS,S')
+  pmc_labels <- c('PMC-3', 'PMC-4', 'PMC-4', 'PMC-5', 'PMC-5', 'PMC-6', 'PMC-7', 'RTS,S')
+  dat$pmc_mode_fct <- factor(dat$pmc_mode, levels = pmc_levels, labels = pmc_labels)
   return(dat)
 }

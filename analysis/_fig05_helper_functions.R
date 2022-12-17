@@ -140,8 +140,8 @@ f_counterfactual_pfpr <- function(exp_name, SAVE = T) {
                 names_glue = "{name}_{.value}") %>%
     dplyr::select(-pmc_coverage, -rtss_coverage, -pmc_mode, -pmc_rtss_cov) %>%
     rename_with(~gsub("_value", "", .x)) %>%
-          mutate(Annual_EIR=round(Annual_EIR,2),
-                 cm_coverage=round(cm_coverage,2))
+    mutate(Annual_EIR = round(Annual_EIR, 2),
+           cm_coverage = round(cm_coverage, 2))
 
   if (SAVE)fwrite(counterfactual_pfpr, file.path(simout_dir, exp_name, 'counterfactual_pfpr.csv'))
   return(counterfactual_pfpr)
