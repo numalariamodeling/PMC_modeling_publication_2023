@@ -1,3 +1,7 @@
+##---------------------
+## Perennial malaria chemoprevention with and without malaria vaccination to reduce malaria burden in young children: a modeling analysis
+## SI_fig_01_supp_pmc_single.R
+##---------------------
 source(file.path('analysis', '_config.R'))
 
 pmc_offset <- TRUE
@@ -81,7 +85,7 @@ if (pmc_single_supp) {
   trial_PEs <- fread(file.path("../data_files", "trial_settings.csv")) %>%
     mutate(n_rounds = nchar(gsub("[^0-9]+", "", ipti_touchpoints_mth)))
 
-  esu_PE <- fread(file.path("../data_files", "IPTi_effectiveness.csv")) %>%
+  esu_PE <- fread(file.path("data_files", "PMC_extracted_effectsizes.csv")) %>%
     mutate(country_abbr = 'AFR') %>%
     dplyr::filter(Author == 'Esu', year == 2021, Drug %in% c("total", "SP") & Outcome == "clinical malaria") %>%
     dplyr::mutate(author_year = paste(country_abbr, year, Author, sep = "_"),

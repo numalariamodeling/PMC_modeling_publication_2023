@@ -1,4 +1,8 @@
-# Fig_05c_scenario_csvs.R
+##---------------------
+## Perennial malaria chemoprevention with and without malaria vaccination to reduce malaria burden in young children: a modeling analysis
+## Fig_05c_scenario_csvs.R
+##---------------------
+
 source(file.path('analysis', '_config.R'))
 source(file.path('analysis', '_fig05_helper_functions.R'))
 

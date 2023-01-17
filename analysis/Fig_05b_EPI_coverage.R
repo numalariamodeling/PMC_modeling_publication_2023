@@ -1,7 +1,10 @@
+##---------------------
+## Perennial malaria chemoprevention with and without malaria vaccination to reduce malaria burden in young children: a modeling analysis
 ## Fig_05b_EPI_coverage.R
+##---------------------
 source(file.path('analysis', '_config.R'))
 source(file.path('analysis', '_fig05_helper_functions.R'))
-library('rdhs')
+
 
 ##---------------
 ## EPI to PMC downscaling

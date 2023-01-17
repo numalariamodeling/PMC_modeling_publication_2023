@@ -1,5 +1,7 @@
-#Fig_02CD U1
-#SI_fig_02_scen_EIR_U1.R
+##---------------------
+## Perennial malaria chemoprevention with and without malaria vaccination to reduce malaria burden in young children: a modeling analysis
+## SI_fig_02_scen_EIR_U1.R
+##---------------------
 source(file.path('analysis', '_config.R'))
 
 (exp_name <- 'generic_PMC_RTSS_EIR_vaccSP_IIV')

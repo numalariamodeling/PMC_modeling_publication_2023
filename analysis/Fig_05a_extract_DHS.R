@@ -1,8 +1,10 @@
+##---------------------
+## Perennial malaria chemoprevention with and without malaria vaccination to reduce malaria burden in young children: a modeling analysis
 ## Fig_05a_extract_DHS.R
+##---------------------
+
 source(file.path('analysis', '_config.R'))
 source(file.path('analysis', '_fig05_helper_functions.R'))
-library('rdhs')
-
 
 ##---------------
 ## PfPR
@@ -92,3 +94,4 @@ dhs_data(tagIds = 32, countryIds = c("NG"), breakdown = "subnational", surveyYea
   mutate(State = ADM1_NAME, ADM1_NAME = ifelse(ADM1_NAME == 'Akwa Ibom', 'Akwa lbom', ADM1_NAME)) %>%
   arrange(State) %>%
   fwrite(file = file.path("data_files", "dhs_vacc_df.csv"))
+

@@ -1,4 +1,8 @@
-tbl_opts <- c("striped", "hover", "condensed", "responsive")
+##---------------------
+## Perennial malaria chemoprevention with and without malaria vaccination to reduce malaria burden in young children: a modeling analysis
+## Fig_05f_figures.R
+##---------------------
+
 source(file.path('analysis', '_config.R'))
 source(file.path('analysis', '_fig05_helper_functions.R'))
 
@@ -8,10 +12,8 @@ outcome_channels = c('PE_clinical_incidence', 'PE_severe_incidence')
 combine_exp_to_df = FALSE
 if (combine_exp_to_df) {
   exp_name_counterfactual <- "NGA_counterfactual_vaccSP_IIV"
-  exp_names <- unique(c(exp_name_counterfactual, list.files(simout_dir, pattern = '_IIV')))
-  print(exp_names)
-  exp_names <- exp_names[!(grepl('completeCov', exp_names))]
-
+  exp_names <- unique(c(exp_name_counterfactual, list.files(simout_dir, pattern = 'NGA_')))
+  (exp_names <- exp_names[!(grepl('generic', exp_names)) & !(grepl('.csv', exp_names))])
 
   df_c <- f_counterfactual_pfpr(exp_name_counterfactual)
 
@@ -44,6 +46,7 @@ if (combine_exp_to_df) {
            clinical_cases_averted = clinical_cases_c - clinical_cases,
            severe_cases_averted = severe_cases_c - severe_cases)
 
+  table(df$scen, df$pmc_mode, exclude = NULL)
   tapply(df$clinical_cases, df$scen, summary)
   tapply(df$severe_cases, df$scen, summary)
 
@@ -56,6 +59,8 @@ if (combine_exp_to_df) {
   df$scen <- factor(df$scen,
                     levels = c('counterfactual', 'pmc_3tp', 'pmc_5tp2ndyr', 'pmc_7tp2ndyr', 'rtss', 'rtss_pmc_3tp'),
                     labels = c('counterfactual', 'PMC-3', 'PMC-5', 'PMC-7', 'RTS,S', 'PMC-3 + RTS,S'))
+  table(df$scen, df$coveragemode, exclude = NULL)
+
   fwrite(df, file.path(simout_dir, 'NGA_simdat_aggr_agegroup.csv'))
 }else {
   df <- fread(file.path(simout_dir, 'NGA_simdat_aggr_agegroup.csv'))
@@ -68,7 +73,7 @@ if (combine_exp_to_df) {
 ###------------------
 prop_popU2_totalpop <- 0.068
 require(readxl)
-nga_pop_all <- read_xlsx(file.path(pmc_path, 'NGA', 'population_size', 'GEOPODE_NGA_population_ages0to100_version2022.xlsx'), skip = 6, trim_ws = T,
+nga_pop_all <- read_xlsx(file.path('data_files', 'GEOPODE_NGA_population_ages0to100_version2022.xlsx'), skip = 6, trim_ws = T,
                          .name_repair = "universal") %>%
   dplyr::select_if(~!(all(is.na(.)) | all(. == ""))) %>%
   filter(!(is.na(LGA))) %>%
@@ -91,7 +96,6 @@ sum(nga_pop$pop_U2)
 
 unique(nga_pop$State)
 unique(df$seasonality)
-
 
 df <- df %>%
   mutate(State = seasonality) %>%
@@ -119,9 +123,37 @@ tapply(df$PE_severe_cases, df$age_group, summary)
 ### describe counterfactual
 desc_counterfactual = F
 if (desc_counterfactual) {
+  fread(file.path(simout_dir, 'NGA_simdat_aggr_agegroup.csv')) %>%
+    mutate(State = seasonality) %>%
+    filter(statistic == 'mean_val') %>%
+    left_join(nga_pop) %>%
+    mutate(clinicalinc_ppa = clinical_cases / 1000,
+           clinicalcases_pop = clinical_cases / 1000 * pop_U2,
+           severeinc_ppa = severe_cases / 1000,
+           severecases_pop = severe_cases / 1000 * pop_U2,
+           clinical_cases_averted_pop = clinical_cases_averted / 1000 * pop_U2, ,
+           severe_cases_averted_pop = severe_cases_averted / 1000 * pop_U2) %>%
+    mutate(ADM1_NAME = gsub('Akwa Ibom', 'Akwa lbom', State)) %>%
+    filter(scen == 'counterfactual' &
+             coveragemode == 'operational' &
+             statistic == 'mean_val') %>%
+    dplyr::select(age_group, State, statistic, total_pop, pop_U2, Annual_EIR,
+                  PfHRP2_Prevalence, clinicalinc_ppa, clinical_cases, clinicalcases_pop) %>%
+    fwrite(file.path(plot_dir, 'csv', 'Fig5_counterfactual_table.csv'))
+
+
   df %>%
-    filter(scen == 'counterfactual') %>%
-    group_by(age_group, statistic) %>%
+    filter(scen == 'counterfactual' &
+             coveragemode == 'operational' &
+             statistic == 'mean_val') %>%
+    dplyr::select(age_group, State, statistic, total_pop, pop_U2, Annual_EIR, PfHRP2_Prevalence, clinicalinc_ppa, clinical_cases, clinicalcases_pop) %>%
+    fwrite(file.path(plot_dir, 'csv', 'Fig5_counterfactual_table_U2.csv'))
+
+  df %>%
+    filter(scen == 'counterfactual' &
+             coveragemode == 'operational' &
+             statistic == 'mean_val') %>%
+    group_by(age_group, State, statistic) %>%
     summarize(
       clinicalcases_pop = sum(clinicalcases_pop),
       severecases_pop = sum(severecases_pop),
@@ -131,7 +163,9 @@ if (desc_counterfactual) {
       severe_cases = weighted.mean(severe_cases, pop_U2),
       clinicalcases_pop = sum(clinicalcases_pop),
       severecases_pop = sum(severecases_pop),
+      total_pop = sum(total_pop),
       pop_U2 = sum(pop_U2))
+
 
   pda <- df %>% filter(scen == 'counterfactual')
   summary(pda$clinical_cases)
@@ -165,7 +199,8 @@ plotdat <- df %>%
                    low_val = quantile(value, probs = 0.05, na.rm = TRUE),
                    up_val = quantile(value, probs = 0.95, na.rm = TRUE),
                    min_val = min(value),
-                   max_val = max(value)) %>%
+                   max_val = max(value),
+                   pop_U2 = sum(pop_U2)) %>%
   dplyr::mutate(
     se.val = sd.val / sqrt(n.val),
     lower.ci.val = mean_val - qt(1 - (0.05 / 2), n.val - 1) * se.val,
@@ -224,7 +259,8 @@ pplot <- plot_grid(pp_clinical, pp_severe, rel_widths = c(1, 1), ncol = 2)
 figleg <- plot_grid(NULL, figleg1, figleg2, NULL, ncol = 1, rel_heights = c(1, 0.6, 0.6, 1), align = 'v')
 pplot <- plot_grid(pplot, figleg2, rel_widths = c(1, 0.3))
 pplot
-f_save_plot(pplot, paste0('Fig5G_total_cases_averted'), file.path(plot_dir), width = 16, height = 4, units = 'in', device_format = device_format)
+f_save_plot(pplot, paste0('Fig5G_total_cases_averted'), file.path(plot_dir),
+            width = 16, height = 4, units = 'in', device_format = device_format)
 fwrite(plotdat, file.path(plot_dir, 'csv', 'Fig5G_total_cases_averted_dat.csv'))
 
 

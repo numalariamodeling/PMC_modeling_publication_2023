@@ -5,6 +5,7 @@ source(file.path('analysis', '_config.R'))
 fig4A <- T
 fig4B <- T
 fig4B_cum <- T
+fig4B_PE <- T
 fig4C <- T
 fig4C_cum <- T
 result_tables <- T
@@ -629,7 +630,7 @@ if (result_tables) {
            pmc_mode_fct = ifelse(pmc_rtss_cov == '0.8-0.8', 'PMC-3+RTS,S', as.character(pmc_mode_fct)))
 
   pdat$pmc_mode_fct <- factor(pdat$pmc_mode_fct, levels = scenario_labels, labels = scenario_labels)
-  dat_table(pdat, qc(age_group, Annual_EIR, name))
+  #dat_table(pdat, qc(age_group, Annual_EIR, name))
 
   pdat %>%
     filter(name %in% c('clinical_cases', 'clinical_cases_averted', 'PE_clinical_incidence') & age_group != 'U1') %>%

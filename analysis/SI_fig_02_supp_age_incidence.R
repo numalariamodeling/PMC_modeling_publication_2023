@@ -1,13 +1,17 @@
+##---------------------
+## Perennial malaria chemoprevention with and without malaria vaccination to reduce malaria burden in young children: a modeling analysis
+## SI_fig_02_supp_age_incidence.R
+##---------------------
 source(file.path('analysis', '_config.R'))
 
 exp_name <- 'generic_PMC_RTSS_EIR_vaccSP_IIV'
-fig2A_suppU5 = FALSE
-fig2A_suppU5_v2 = FALSE
-Fig2A_timing = FALSE
+fig2A_suppU5 <- FALSE
+fig2A_suppU5_v2 <- FALSE
+Fig2A_timing <- FALSE
 
-fig2A_SUPP = FALSE
-fig2B_SUPP = FALSE
-fig2B_SUPP2 = FALSE
+fig2A_SUPP <- FALSE
+fig2B_SUPP <- FALSE
+fig2B_SUPP2 <- FALSE
 
 cases_df <- fread(file.path(simout_dir, exp_name, 'simdat_aggr_week.csv')) %>%
   rename_with(~gsub('ipti', 'pmc', .x)) %>%
@@ -59,7 +63,7 @@ if (fig2A_suppU5) {
   #fwrite(pdat, file.path(plot_dir, 'csv', 'Fig2A_dat.csv'))
 
 
-}
+} #fig2A_suppU5
 
 if (fig2A_suppU5_v2) {
 
@@ -99,8 +103,7 @@ if (fig2A_suppU5_v2) {
   #fwrite(pdat, file.path(plot_dir, 'csv', 'fig_2A_zoom_PMC.csv'))
 
 
-}
-
+} #fig2A_suppU5_v2
 
 if (Fig2A_timing) {
 
@@ -146,7 +149,7 @@ if (Fig2A_timing) {
   f_save_plot(pplot, paste0('fig_malaria_burden_U2_fineagebin'),
               file.path(plot_dir), width = 8, height = 6, units = 'in', device_format = device_format)
 
-}
+} #Fig2A_timing
 
 if (cases_averted) {
   cases_df <- fread(file.path(simout_dir, exp_name, 'simdat_aggr_week.csv')) %>%
@@ -201,8 +204,7 @@ if (cases_averted) {
 
   #fwrite(pdat, file.path(plot_dir, 'csv', 'fig_2B_zoom.csv'))
 
-}
-
+} #cases_averted
 
 if (fig2A_SUPP) {
   pdat <- cases_df %>%

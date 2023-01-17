@@ -1,3 +1,7 @@
+##---------------------
+## Perennial malaria chemoprevention with and without malaria vaccination to reduce malaria burden in young children: a modeling analysis
+## SI_fig_04_supp.R
+##---------------------
 source(file.path('analysis', '_config.R'))
 
 (exp_name <- 'generic_PMCmode_RTSS_vaccSP_IIV')
@@ -91,7 +95,6 @@ pdat %>%
 ###
 if (cov_heatmap) {
 
-
   exp_name_rtss_cov_scen = 'generic_single_RTSS_vaccSP_IIV'
   dat_agrgrp_rtss_cov <- fread(file.path(simout_dir, exp_name_rtss_cov_scen, 'simdat_aggr_agegroup.csv')) %>% filter(pmc_coverage == 0 & age_group %in% c('U1', 'U2'))
   pdat_rtss <- fread(file.path(simout_dir, exp_name_rtss_cov_scen, 'simdat_aggr_year.csv')) %>%
@@ -140,7 +143,7 @@ if (cov_heatmap) {
               file.path(plot_dir), width = 7, height = 3, units = 'in', device_format = device_format)
 
 
-} #
+} #cov_heatmap
 
 
 tdat_a <- pdat %>%
@@ -194,12 +197,7 @@ pplot <- ggplot(data = tdat) +
 
 
 print(pplot)
-
-if (SAVE) {
-  f_save_plot(pplot, paste0('fig_SI_X'),
-              file.path(plot_dir), width = 8, height = 5, units = 'in', device_format = device_format)
-
-}
+f_save_plot(pplot, paste0('fig_SI_X'), file.path(plot_dir), width = 8, height = 5, units = 'in', device_format)
 
 
 rtss_fine_age = F
@@ -273,7 +271,7 @@ if (rtss_fine_age) {
               file.path(plot_dir), width = 8, height = 3.5, units = 'in', device_format = device_format)
 
 
-}
+} #rtss_fine_age
 
 
 ## WIth RTSS
@@ -359,5 +357,5 @@ if (with_rtss_heatmap2) {
     customTheme_nogrid
 
 
-}
+} #with_rtss_heatmap2
 

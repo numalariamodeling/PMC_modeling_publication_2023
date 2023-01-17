@@ -1,10 +1,15 @@
+##---------------------
+## Perennial malaria chemoprevention with and without malaria vaccination to reduce malaria burden in young children: a modeling analysis
+## SI_population_demography.R
+##---------------------
+
+
 source(file.path('analysis', '_config.R'))
 source(file.path('analysis', '_fig05_helper_functions.R'))
 
 getPalette <- rev(colorRampPalette(brewer.pal(8, "RdYlBu"))(12))
 getPalette2 <- rev(colorRampPalette(brewer.pal(8, "YlGnBu"))(12))
 getPalette3 <- rev(colorRampPalette(brewer.pal(8, "BuPu"))(12))
-
 
 prop_popU2_totalpop <- 0.068
 require(readxl)

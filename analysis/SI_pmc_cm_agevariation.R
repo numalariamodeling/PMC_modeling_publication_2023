@@ -1,9 +1,9 @@
-#setwd(file.path(getwd(),'manuscript'))
-model <- 'generic'
-source(file.path('00_config.R'))
+##---------------------
+## Perennial malaria chemoprevention with and without malaria vaccination to reduce malaria burden in young children: a modeling analysis
+## SI_pmc_cm_agevariation.R
+##---------------------
 
-##--------------------------------
-##--------------------------------
+source(file.path('analysis', '_config.R'))
 
 exp_name <- 'generic_PMC_CM_vaccSP_IIV'
 dat_aggr <- fread(file.path(simout_dir, exp_name, 'simdat_aggr_agegroup.csv'))
@@ -15,7 +15,6 @@ dat_aggr <- dat_aggr %>%
   mutate(cm_coverage = as.factor(cm_coverage * 100))
 
 ##--------------------------------
-
 pA1 <- dat_aggr %>%
   filter(age_group == 'U1' &
            name == 'clinical_cases_averted' &

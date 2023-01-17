@@ -1,5 +1,8 @@
+##---------------------
+## Perennial malaria chemoprevention with and without malaria vaccination to reduce malaria burden in young children: a modeling analysis
+## SI_Navrongo.R
+##---------------------
 source(file.path('analysis', '_config.R'))
-
 
 study_start <- as.Date("2000-09-30")
 study_end <- as.Date("2004-06-01")

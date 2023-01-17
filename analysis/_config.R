@@ -1,12 +1,17 @@
+##---------------------
+## Perennial malaria chemoprevention with and without malaria vaccination to reduce malaria burden in young children: a modeling analysis
+## _config.R
+##---------------------
+
+tbl_opts <- c("striped", "hover", "condensed", "responsive") # kableExtra
 pckg <- c("dplyr", "data.table", "wrapr", "dplyr", "tidyr", "lubridate", "zoo", "ggthemes", "cowplot",
-          "scales", "ggplot2", "RColorBrewer", "see", 'pracma')
+          "scales", "ggplot2", "RColorBrewer", "see", 'pracma') # kableExtra
 a <- lapply(pckg, require, character.only = TRUE)
 rm(a)
 
 plot_dir <- file.path('figures')
-data_path <- file.path('../data_files')
+data_path <- file.path('data_files')
 simout_dir <- file.path('postprocessed_output')
-
 
 ###-------------------  Define custom objects
 eir_max = 200
@@ -111,6 +116,7 @@ f_getCustomTheme <- function(fontscl = 1) {
 
   return(customTheme)
 }
+
 
 theme_set(theme_bw())
 customTheme <- f_getCustomTheme() + guides(panel.spacing = unit(1.3, "lines"))

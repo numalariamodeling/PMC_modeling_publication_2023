@@ -1,9 +1,11 @@
-# sourced by 05_generic_nga_application.rmd
+##---------------------
+## Perennial malaria chemoprevention with and without malaria vaccination to reduce malaria burden in young children: a modeling analysis
+## _fig05_helper_functions.R
+##---------------------
 
 pckg <- c("rdhs", "raster", "malariaAtlas", "exactextractr", "wpgpDownloadR", "RColorBrewer")
 a <- lapply(pckg, require, character.only = TRUE)
 rm(a)
-
 
 ##---------------
 ## Helper functions
@@ -129,7 +131,7 @@ get_interpolatedgrid <- function(dat, cov1, cov2, outcome, return_model = F) {
 ##---------------
 f_counterfactual_pfpr <- function(exp_name, SAVE = T) {
   counterfactual_pfpr <- fread(file.path(simout_dir, exp_name, 'simdat_aggr_agegroup.csv')) %>%
-    filter(age_group %in% c('U5', 'U2') &
+    filter(age_group %in% c('U5', 'U2', 'U1') &
              pmc_coverage == 0 &
              rtss_coverage == 0) %>%
     filter(name %in% c('PfHRP2_Prevalence', 'clinical_cases', 'severe_cases')) %>%

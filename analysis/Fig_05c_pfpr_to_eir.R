@@ -1,4 +1,7 @@
+##---------------------
+## Perennial malaria chemoprevention with and without malaria vaccination to reduce malaria burden in young children: a modeling analysis
 ## Fig_05c_pfpr_to_eir.R
+##---------------------
 
 (exp_name <- 'generic_PMC3_RTSScov_EIR_constant_vaccSP_IIV')
 

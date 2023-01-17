@@ -57,7 +57,7 @@ if (pmc_single) {
 if (rtss_single) {
   vaccine_date <- as.Date('2021-01-01')
 
-  reference_filepath <- file.path('../data_files', 'Penny_et_al_2016_supplement_Kintampo.csv')
+  reference_filepath <- file.path('data_files', 'Penny_et_al_2016_supplement_Kintampo.csv')
   ref_df <- fread(reference_filepath) %>%
     rename(time_group = bar, PE_ref = mean) %>%
     dplyr::select('time_group', 'PE_ref')
