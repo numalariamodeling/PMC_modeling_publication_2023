@@ -1,0 +1,41 @@
+ADM1_NAME,HadFever,SoughtCare,GotACT,State
+Abia,0.077,0.866,0.085,Abia
+Abia,0.411,0.791,0.493,Abia
+Akwa lbom,0.376,0.695,0.287,Akwa Ibom
+Akwa lbom,0.442,0.444,0.1,Akwa Ibom
+Anambra,0.137,0.974,0.584,Anambra
+Anambra,0.375,0.885,0.289,Anambra
+Bayelsa,0.1,0.718,0.346,Bayelsa
+Bayelsa,0.242,0.522,0.1,Bayelsa
+Benue,0.122,0.923,0.133,Benue
+Benue,0.183,0.731,0.61,Benue
+Cross River,0.168,0.835,0.259,Cross River
+Cross River,0.406,0.584,0.363,Cross River
+Delta,0.052,,,Delta
+Delta,0.373,0.426,0.215,Delta
+Ebonyi,0.324,0.643,0.447,Ebonyi
+Ebonyi,0.268,0.72,0.37,Ebonyi
+Edo,0.189,0.783,0.114,Edo
+Edo,0.408,0.641,0.234,Edo
+Ekiti,0.179,0.618,0.141,Ekiti
+Ekiti,0.191,0.412,0.374,Ekiti
+Enugu,0.14,0.816,0.423,Enugu
+Enugu,0.249,0.732,0.372,Enugu
+Imo,0.279,0.513,0.458,Imo
+Imo,0.38,0.774,0.286,Imo
+Kogi,0.115,0.519,0.121,Kogi
+Kogi,0.338,0.667,0.419,Kogi
+Lagos,0.067,0.784,0.248,Lagos
+Lagos,0.346,0.734,0.401,Lagos
+Ogun,0.049,,,Ogun
+Ogun,0.253,0.394,0.304,Ogun
+Ondo,0.127,0.61,0.297,Ondo
+Ondo,0.152,0.488,0.067,Ondo
+Osun,0.139,0.658,0.309,Osun
+Osun,0.157,0.61,0.34,Osun
+Oyo,0.065,0.808,0.086,Oyo
+Oyo,0.183,0.46,0.183,Oyo
+Rivers,0.42,0.899,0.254,Rivers
+Rivers,0.306,0.582,0.231,Rivers
+Taraba,0.288,0.525,0.193,Taraba
+Taraba,0.244,0.468,0.131,Taraba
