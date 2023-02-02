@@ -74,12 +74,6 @@ pmc_drug = 'vaccSP'  # 'SP' or 'SDX_PYR', or 'vaccSP'
 PDsweep = False
 num_params_to_run = 15  # if PDsweep True
 
-scen_csv = 'NGA_pmc_3tp.csv'
-scen_csv = 'NGA_pmc_5tp2ndyr.csv'
-scen_csv = 'NGA_pmc_7tp.csv'
-scen_csv = 'NGA_rtss_pmc_3tp.csv'
-scen_csv = 'NGA_rtss.csv'
-
 
 exp_name = scen_csv.replace('.csv', '')
 exp_name = exp_name + f'_{pmc_drug}'

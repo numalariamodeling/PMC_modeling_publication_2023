@@ -1,17 +1,31 @@
 import pandas as pd
 import numpy as np
 import math
-from dtk.interventions.irs import add_IRS
-from dtk.interventions.itn_age_season import add_ITN_age_season
 from dtk.interventions.property_change import change_individual_property
 from malaria.interventions.adherent_drug import configure_adherent_drug
 from malaria.interventions.health_seeking import add_health_seeking
-from malaria.interventions.malaria_diagnostic import add_diagnostic_survey
 from malaria.interventions.malaria_drug_campaigns import add_drug_campaign
 from malaria.interventions.malaria_vaccine import add_vaccine
 from malaria.reports.MalariaReport import add_event_counter_report
 
-from simulations.simulation_helpers import calc_high_low_access_coverages, set_IIV_vacc
+
+def calc_high_low_access_coverages(coverage_all, high_access_frac):
+    if (high_access_frac < 1) & (coverage_all >= high_access_frac):
+        coverage_high = 1
+        coverage_low = (coverage_all - high_access_frac) / (1 - high_access_frac)
+    else:
+        coverage_high = coverage_all / high_access_frac
+        coverage_low = 0
+    return [coverage_high, coverage_low]
+
+
+def set_IIV_vacc(eff_lower, eff_upper, eff_SD, params):
+    decay_params_IIV = copy.deepcopy(params)
+    cur_eff = params['Waning_Config']['Initial_Effect']
+    new_eff = stats.truncnorm.rvs((eff_lower - cur_eff) / eff_SD, (eff_upper - cur_eff) / eff_SD, loc=cur_eff,
+                                  scale=eff_SD)
+    decay_params_IIV['Waning_Config']['Initial_Effect'] = new_eff
+    return decay_params_IIV
 
 
 class InterventionSuite:
@@ -364,13 +378,11 @@ class InterventionSuite:
 
         return len(rtss_df)
 
-    def add_ds_pmc(self, cb, pmc_df, my_ds, high_access_ip_frac=0, pmc_target_group='random',vaccSP_offset = 10):
+    def add_ds_pmc(self, cb, pmc_df, my_ds, high_access_ip_frac=0, pmc_target_group='random', vaccSP_offset=10):
         pmc_df = pmc_df[pmc_df[self.pmc_ds_col].str.upper() == my_ds.upper()]
-        drug_code = pmc_df['drug_code'].unique()[0]
 
         try:
-            num_IIV_groups = pmc_df['num_IIV_groups'].unique()[
-                0]  ## add to pmc_df in simulation script for using IIV
+            num_IIV_groups = pmc_df['num_IIV_groups'].unique()[0]  ## add to pmc_df in simulation script for using IIV
             pmc_IIV = True
         except:
             num_IIV_groups = None
@@ -401,125 +413,59 @@ class InterventionSuite:
                     else:
                         print('WARNING: name for PMC access-group targeting not recognized.')
 
-                    if drug_code == 'vaccSP':
-                        # higher access
-                        add_vaccine(cb,
-                                    vaccine_type='RTSS',
-                                    vaccine_params=decay_params,
-                                    start_days=[row[self.pmc_start_col]-vaccSP_offset],
-                                    coverage=high_low_coverages[0],
-                                    repetitions=1,
-                                    tsteps_btwn_repetitions=-1,
-                                    receiving_vaccine_event_name='Received_PMC',
-                                    ind_property_restrictions=[{'AccessToInterventions': 'higher'}],
-                                    target_group={'agemin': row[self.pmc_agemin], 'agemax': row[self.pmc_agemax]})
+                    # higher access
+                    add_vaccine(cb,
+                                vaccine_type='RTSS',
+                                vaccine_params=decay_params,
+                                start_days=[row[self.pmc_start_col] - vaccSP_offset],
+                                coverage=high_low_coverages[0],
+                                repetitions=1,
+                                tsteps_btwn_repetitions=-1,
+                                receiving_vaccine_event_name='Received_PMC',
+                                ind_property_restrictions=[{'AccessToInterventions': 'higher'}],
+                                target_group={'agemin': row[self.pmc_agemin], 'agemax': row[self.pmc_agemax]})
 
-                        # lower access
-                        add_vaccine(cb,
-                                    vaccine_type='RTSS',
-                                    vaccine_params=decay_params,
-                                    start_days=[row[self.pmc_start_col]-vaccSP_offset],
-                                    coverage=high_low_coverages[1],
-                                    repetitions=1,
-                                    tsteps_btwn_repetitions=-1,
-                                    receiving_vaccine_event_name='Received_PMC',
-                                    ind_property_restrictions=[{'AccessToInterventions': 'lower'}],
-                                    target_group={'agemin': row[self.pmc_agemin], 'agemax': row[self.pmc_agemax]})
-                    else:
-                        # higher access
-                        add_drug_campaign(cb, campaign_type='MDA',
-                                          drug_code=drug_code,
-                                          coverage=high_low_coverages[0],
-                                          start_days=[row[self.pmc_start_col]],
-                                          target_group={'agemin': row[self.pmc_agemin],
-                                                        'agemax': row[self.pmc_agemax]},
-                                          repetitions=row[self.pmc_repetitions],
-                                          tsteps_btwn_repetitions=row[self.pmc_tsteps_btwn_repetitions],
-                                          ind_property_restrictions=[{'AccessToInterventions': 'higher'}],
-                                          receiving_drugs_event_name='Received_Campaign_Drugs')
-
-                        # lower access
-                        add_drug_campaign(cb, campaign_type='MDA',
-                                          drug_code=drug_code,
-                                          coverage=high_low_coverages[1],
-                                          start_days=[row[self.pmc_start_col]],
-                                          target_group={'agemin': row[self.pmc_agemin],
-                                                        'agemax': row[self.pmc_agemax]},
-                                          repetitions=row[self.pmc_repetitions],
-                                          tsteps_btwn_repetitions=row[self.pmc_tsteps_btwn_repetitions],
-                                          ind_property_restrictions=[{'AccessToInterventions': 'lower'}],
-                                          receiving_drugs_event_name='Received_PMC')
+                    # lower access
+                    add_vaccine(cb,
+                                vaccine_type='RTSS',
+                                vaccine_params=decay_params,
+                                start_days=[row[self.pmc_start_col] - vaccSP_offset],
+                                coverage=high_low_coverages[1],
+                                repetitions=1,
+                                tsteps_btwn_repetitions=-1,
+                                receiving_vaccine_event_name='Received_PMC',
+                                ind_property_restrictions=[{'AccessToInterventions': 'lower'}],
+                                target_group={'agemin': row[self.pmc_agemin], 'agemax': row[self.pmc_agemax]})
 
                 else:
-                    if drug_code == 'vaccSP':
-                        add_vaccine(cb,
-                                    vaccine_type='RTSS',
-                                    vaccine_params=decay_params,
-                                    start_days=[row[self.pmc_start_col]-vaccSP_offset],
-                                    coverage=row[self.pmc_coverage_col],
-                                    repetitions=1,
-                                    tsteps_btwn_repetitions=-1,
-                                    receiving_vaccine_event_name='Received_PMC',
-                                    target_group={'agemin': row[self.pmc_agemin], 'agemax': row[self.pmc_agemax]})
-                    else:
-                        add_drug_campaign(cb, campaign_type='MDA',
-                                          drug_code=drug_code,
-                                          coverage=row[self.pmc_coverage_col],
-                                          start_days=[row[self.pmc_start_col]],
-                                          target_group={'agemin': row[self.pmc_agemin],
-                                                        'agemax': row[self.pmc_agemax]},
-                                          repetitions=row[self.pmc_repetitions],
-                                          tsteps_btwn_repetitions=row[self.pmc_tsteps_btwn_repetitions],
-                                          receiving_drugs_event_name='Received_PMC')
+                    add_vaccine(cb,
+                                vaccine_type='RTSS',
+                                vaccine_params=decay_params,
+                                start_days=[row[self.pmc_start_col] - vaccSP_offset],
+                                coverage=row[self.pmc_coverage_col],
+                                repetitions=1,
+                                tsteps_btwn_repetitions=-1,
+                                receiving_vaccine_event_name='Received_PMC',
+                                target_group={'agemin': row[self.pmc_agemin], 'agemax': row[self.pmc_agemax]})
+
         else:
             """When running with IIV birth triggered event needs to happen separate from drug campaigns"""
             IIV_groups = ["Group%d" % x for x in range(num_IIV_groups)]
             for r, row in pmc_df.iterrows():
 
                 for index, val in enumerate(IIV_groups):
-                    if drug_code == 'vaccSP':
-                        decay_params_IIV = set_IIV_vacc(eff_lower=0.75, eff_upper=0.9, eff_SD=0.025,
-                                                        params=decay_params)
-                        add_vaccine(cb,
-                                    vaccine_type='RTSS',
-                                    vaccine_params=decay_params_IIV,
-                                    start_days=[row[self.pmc_start_col]-vaccSP_offset],
-                                    coverage=row[self.pmc_coverage_col],
-                                    repetitions=1,
-                                    tsteps_btwn_repetitions=-1,
-                                    receiving_vaccine_event_name='Received_PMC',
-                                    ind_property_restrictions=[{'DrugResponseGroup': val}],
-                                    target_group={'agemin': row[self.pmc_agemin], 'agemax': row[self.pmc_agemax]})
-                    else:
-                        if drug_code == 'SDX_PYR':
-                            drug_doses = [['SulfadoxinePyrimethamine_%d' % index]]
-                        elif drug_code == 'SP':
-                            drug_doses = [['Sulfadoxine_%d' % index,
-                                           'Pyrimethamine_%d' % index]]
-                        else:
-                            raise ValueError('drug_code for PMC needs to be "SP" or "SDX_PYR"')
-
-                        dose_response_config = configure_adherent_drug(cb,
-                                                                       doses=drug_doses,
-                                                                       dose_interval=1,
-                                                                       non_adherence_options=['Stop'],
-                                                                       non_adherence_distribution=[1],
-                                                                       adherence_config={
-                                                                           "class": "WaningEffectMapCount",
-                                                                           "Initial_Effect": 1,
-                                                                           "Durability_Map": {"Times": [1.0],
-                                                                                              "Values": [1]}})
-
-                        add_drug_campaign(cb, campaign_type='MDA',
-                                          adherent_drug_configs=[dose_response_config],
-                                          coverage=row[self.pmc_coverage_col],
-                                          start_days=[row[self.pmc_start_col]],
-                                          ind_property_restrictions=[{'DrugResponseGroup': val}],
-                                          target_group={'agemin': row[self.pmc_agemin],
-                                                        'agemax': row[self.pmc_agemax]},
-                                          repetitions=row[self.pmc_repetitions],
-                                          tsteps_btwn_repetitions=row[self.pmc_tsteps_btwn_repetitions],
-                                          receiving_drugs_event_name='Received_PMC')
+                    decay_params_IIV = set_IIV_vacc(eff_lower=0.75, eff_upper=0.9, eff_SD=0.025,
+                                                    params=decay_params)
+                    add_vaccine(cb,
+                                vaccine_type='RTSS',
+                                vaccine_params=decay_params_IIV,
+                                start_days=[row[self.pmc_start_col] - vaccSP_offset],
+                                coverage=row[self.pmc_coverage_col],
+                                repetitions=1,
+                                tsteps_btwn_repetitions=-1,
+                                receiving_vaccine_event_name='Received_PMC',
+                                ind_property_restrictions=[{'DrugResponseGroup': val}],
+                                target_group={'agemin': row[self.pmc_agemin], 'agemax': row[self.pmc_agemax]})
 
         return len(pmc_df)
 
