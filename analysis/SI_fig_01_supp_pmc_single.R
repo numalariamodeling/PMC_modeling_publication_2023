@@ -82,10 +82,10 @@ if (pmc_offset) {
 ## Supp  -  PMC efficacy by EIR and reference
 if (pmc_single_supp) {
 
-  trial_PEs <- fread(file.path("../data_files", "trial_settings.csv")) %>%
+  trial_PEs <- fread(file.path("data_files", "PMC_effectsize_studies_Aponte2009.csv ")) %>%
     mutate(n_rounds = nchar(gsub("[^0-9]+", "", ipti_touchpoints_mth)))
 
-  esu_PE <- fread(file.path("data_files", "PMC_extracted_effectsizes.csv")) %>%
+  esu_PE <- fread(file.path("data_files", "PMC_effectsizes_Cochrane2021.csv")) %>%
     mutate(country_abbr = 'AFR') %>%
     dplyr::filter(Author == 'Esu', year == 2021, Drug %in% c("total", "SP") & Outcome == "clinical malaria") %>%
     dplyr::mutate(author_year = paste(country_abbr, year, Author, sep = "_"),
