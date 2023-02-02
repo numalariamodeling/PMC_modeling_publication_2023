@@ -1,1 +1,7 @@
 .idea/
+_scratch/
+figures/pdf/
+postprocessed_output/*
+simulation_output/*
+!postprocessed_output/README.md
+!simulation_output/README.md
