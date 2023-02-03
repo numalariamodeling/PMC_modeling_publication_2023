@@ -6,7 +6,6 @@
 source(file.path('analysis', '_config.R'))
 source(file.path('analysis', '_fig05_helper_functions.R'))
 
-simout_dir <- gsub('_generic', '_NGA', simout_dir)
 outcome_channels = c('PE_clinical_incidence', 'PE_severe_incidence')
 
 combine_exp_to_df = FALSE
@@ -61,7 +60,7 @@ if (combine_exp_to_df) {
                     labels = c('counterfactual', 'PMC-3', 'PMC-5', 'PMC-7', 'RTS,S', 'PMC-3 + RTS,S'))
   table(df$scen, df$coveragemode, exclude = NULL)
 
-  fwrite(df, file.path(simout_dir, 'NGA_simdat_aggr_agegroup.csv'))
+  fwrite(df, file.path(simout_dir, 'NGA_simdat_aggr_agegroup.csv'),yaml = T)
 }else {
   df <- fread(file.path(simout_dir, 'NGA_simdat_aggr_agegroup.csv'))
 

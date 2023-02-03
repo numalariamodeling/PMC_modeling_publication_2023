@@ -3,7 +3,7 @@
 ## _fig05_helper_functions.R
 ##---------------------
 
-pckg <- c("rdhs", "raster", "malariaAtlas", "exactextractr", "wpgpDownloadR", "RColorBrewer")
+pckg <- c("rdhs", "raster", 'readxl','matrixStats', "malariaAtlas", "exactextractr", "wpgpDownloadR", "RColorBrewer")
 a <- lapply(pckg, require, character.only = TRUE)
 rm(a)
 
