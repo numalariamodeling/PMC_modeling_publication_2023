@@ -257,7 +257,7 @@ pp_clinical <- ggplot(data = subset(plotdat, name == 'clinical_cases_averted')) 
   scale_y_continuous(lim = c(0, 4.5e6), expand = c(0, 0), labels = comma) +
   scale_fill_manual(values = fill_cols) +
   scale_color_manual(values = line_cols) +
-  labs(x = '', y = paste0('Clinical cases', yunit)) +
+  labs(x = '', y = paste0('Clinical cases averted', yunit)) +
   customTheme_nogrid
 
 
@@ -273,7 +273,7 @@ pp_severe <- ggplot(data = subset(plotdat, name == 'severe_cases_averted')) +
   scale_y_continuous(lim = c(0, 4.5e4), expand = c(0, 0), labels = comma) +
   scale_fill_manual(values = fill_cols) +
   scale_color_manual(values = line_cols) +
-  labs(x = '', y = paste0('Severe cases', yunit)) +
+  labs(x = '', y = paste0('Severe cases averted', yunit)) +
   customTheme_nogrid
 
 pplot <- plot_grid(pp_clinical, pp_severe, rel_widths = c(1, 1), ncol = 2)
