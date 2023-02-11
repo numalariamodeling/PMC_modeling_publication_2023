@@ -6,9 +6,9 @@
 source(file.path('analysis', '_config.R'))
 source(file.path('analysis', '_fig05_helper_functions.R'))
 
-outcome_channels = c('PE_clinical_incidence', 'PE_severe_incidence')
+outcome_measure_fig5 <- 'clinical_cases_averted_pop'
 
-combine_exp_to_df = FALSE
+combine_exp_to_df <- FALSE
 if (combine_exp_to_df) {
   exp_name_counterfactual <- "NGA_counterfactual_vaccSP_IIV"
   exp_names <- unique(c(exp_name_counterfactual, list.files(simout_dir, pattern = 'NGA_')))
@@ -60,7 +60,7 @@ if (combine_exp_to_df) {
                     labels = c('counterfactual', 'PMC-3', 'PMC-5', 'PMC-7', 'RTS,S', 'PMC-3 + RTS,S'))
   table(df$scen, df$coveragemode, exclude = NULL)
 
-  fwrite(df, file.path(simout_dir, 'NGA_simdat_aggr_agegroup.csv'),yaml = T)
+  fwrite(df, file.path(simout_dir, 'NGA_simdat_aggr_agegroup.csv'), yaml = T)
 }else {
   df <- fread(file.path(simout_dir, 'NGA_simdat_aggr_agegroup.csv'))
 
@@ -118,6 +118,7 @@ tapply(df$PE_severe_cases, df$scen, summary)
 tapply(df$PE_clinical_cases, df$age_group, summary)
 tapply(df$PE_severe_cases, df$age_group, summary)
 
+#fwrite(df, file.path(simout_dir, 'NGA_simdat_aggr_agegroup_pop.csv'))
 
 ### describe counterfactual
 desc_counterfactual = F
@@ -145,7 +146,8 @@ if (desc_counterfactual) {
     filter(scen == 'counterfactual' &
              coveragemode == 'operational' &
              statistic == 'mean_val') %>%
-    dplyr::select(age_group, State, statistic, total_pop, pop_U2, Annual_EIR, PfHRP2_Prevalence, clinicalinc_ppa, clinical_cases, clinicalcases_pop) %>%
+    dplyr::select(age_group, State, statistic, total_pop, pop_U2, Annual_EIR, PfHRP2_Prevalence, clinicalinc_ppa,
+                  clinical_cases, clinicalcases_pop) %>%
     fwrite(file.path(plot_dir, 'csv', 'Fig5_counterfactual_table_U2.csv'))
 
   df %>%
@@ -156,10 +158,10 @@ if (desc_counterfactual) {
     summarize(
       clinicalcases_pop = sum(clinicalcases_pop),
       severecases_pop = sum(severecases_pop),
-      clinical_cases_unw = mean(clinical_cases),
-      severe_cases_unw = mean(severe_cases),
-      clinical_cases = weighted.mean(clinical_cases, pop_U2),
-      severe_cases = weighted.mean(severe_cases, pop_U2),
+      clinical_cases_unw = mean(clinical_cases),  ## incidence
+      severe_cases_unw = mean(severe_cases),  ## incidence
+      clinical_cases = weighted.mean(clinical_cases, pop_U2),  ## incidence
+      severe_cases = weighted.mean(severe_cases, pop_U2), ## incidence
       clinicalcases_pop = sum(clinicalcases_pop),
       severecases_pop = sum(severecases_pop),
       total_pop = sum(total_pop),
@@ -177,17 +179,19 @@ if (desc_counterfactual) {
 }
 
 grp_vars <- qc(age_group, scen, pmc_mode, coveragemode)
-outcome_vars <- qc(clinical_cases, severe_cases, clinical_cases_averted, severe_cases_averted,
-                   PE_clinical_cases, PE_severe_cases,
-                   clinical_cases_averted_pop, severe_cases_averted_pop)
+outcome_vars_mean <- qc(clinical_cases, severe_cases,
+                        clinical_cases_averted, severe_cases_averted,
+                        PE_clinical_cases, PE_severe_cases)
+outcome_vars_sum <- qc(clinical_cases_pop, severe_cases_pop,
+                       clinical_cases_averted_pop, severe_cases_averted_pop)
 
 library(matrixStats)
-plotdat <- df %>%
+plotdat_mean <- df %>%
   filter(age_group == 'U2' &
            scen != 'counterfactual' &
            statistic == 'mean_val') %>%
-  dplyr::select_at(.vars = c(grp_vars, outcome_vars, 'seasonality', 'pop_U2')) %>%
-  tidyr::pivot_longer(col = outcome_vars) %>%
+  dplyr::select_at(.vars = c(grp_vars, outcome_vars_mean, 'seasonality', 'pop_U2')) %>%
+  tidyr::pivot_longer(col = outcome_vars_mean) %>%
   dplyr::group_by_at(.vars = c(grp_vars, 'name')) %>%
   dplyr::summarise(n.val = n(),
                    sd.val = weightedSd(value, pop_U2, na.rm = TRUE),
@@ -204,6 +208,24 @@ plotdat <- df %>%
     se.val = sd.val / sqrt(n.val),
     lower.ci.val = mean_val - qt(1 - (0.05 / 2), n.val - 1) * se.val,
     upper.ci.val = mean_val + qt(1 - (0.05 / 2), n.val - 1) * se.val)
+
+plotdat_pop <- plotdat_mean %>%
+  filter(name %in% qc(clinical_cases, severe_cases, clinical_cases_averted, severe_cases_averted)) %>%
+  mutate(lower.ci.val = lower.ci.val / 1000 * pop_U2,
+         upper.ci.val = upper.ci.val / 1000 * pop_U2,
+         median_val_unw = median_val_unw / 1000 * pop_U2,
+         median_val = median_val / 1000 * pop_U2,
+         mean_val = mean_val / 1000 * pop_U2,
+         mean_val_unw = mean_val_unw / 1000 * pop_U2)
+
+if (outcome_measure_fig5 == 'clinical_cases_averted_pop') {
+  plotdat <- plotdat_pop
+  yunit <- ' per total population U2'
+}else {
+  plotdat <- plotdat_mean
+  yunit <- ' per 1000 population U2'
+}
+
 
 line_cols <- rep(custom_cols2, 2)
 fill_cols <- line_cols
@@ -222,7 +244,7 @@ figleg2 <- get_legend(ggplot(data = subset(plotdat, name == 'clinical_cases_aver
                         scale_fill_manual(values = c('white', 'black')) +
                         labs(color = 'Coverage', fill = 'Coverage'))
 
-pp_clinical <- ggplot(data = subset(plotdat, name == 'clinical_cases_averted_pop')) +
+pp_clinical <- ggplot(data = subset(plotdat, name == 'clinical_cases_averted')) +
   geom_col(aes(x = scen, y = mean_val,
                group = interaction(coveragemode, scen),
                col = interaction(scen, coveragemode),
@@ -232,14 +254,14 @@ pp_clinical <- ggplot(data = subset(plotdat, name == 'clinical_cases_averted_pop
                     group = interaction(coveragemode, scen)),
                 position = position_dodge(width = 0.6), width = 0) +
   #scale_y_continuous(lim = c(0, 600), expand = c(0, 0),labels=comma) +
-  scale_y_continuous(lim = c(0, 220000), expand = c(0, 0), labels = comma) +
+  scale_y_continuous(lim = c(0, 4.5e6), expand = c(0, 0), labels = comma) +
   scale_fill_manual(values = fill_cols) +
   scale_color_manual(values = line_cols) +
-  labs(x = '', y = 'Clinical cases per total population U2') +
+  labs(x = '', y = paste0('Clinical cases', yunit)) +
   customTheme_nogrid
 
 
-pp_severe <- ggplot(data = subset(plotdat, name == 'severe_cases_averted_pop')) +
+pp_severe <- ggplot(data = subset(plotdat, name == 'severe_cases_averted')) +
   geom_col(aes(x = scen, y = mean_val,
                group = interaction(coveragemode, scen),
                col = interaction(scen, coveragemode),
@@ -248,10 +270,10 @@ pp_severe <- ggplot(data = subset(plotdat, name == 'severe_cases_averted_pop')) 
   geom_errorbar(aes(x = scen, ymin = lower.ci.val, ymax = upper.ci.val,
                     group = interaction(coveragemode, scen)),
                 position = position_dodge(width = 0.6), width = 0) +
-  scale_y_continuous(lim = c(0, 2500), expand = c(0, 0), labels = comma) +
+  scale_y_continuous(lim = c(0, 4.5e4), expand = c(0, 0), labels = comma) +
   scale_fill_manual(values = fill_cols) +
   scale_color_manual(values = line_cols) +
-  labs(x = '', y = 'Severe cases per total population') +
+  labs(x = '', y = paste0('Severe cases', yunit)) +
   customTheme_nogrid
 
 pplot <- plot_grid(pp_clinical, pp_severe, rel_widths = c(1, 1), ncol = 2)
