@@ -185,7 +185,6 @@ outcome_vars_mean <- qc(clinical_cases, severe_cases,
 outcome_vars_sum <- qc(clinical_cases_pop, severe_cases_pop,
                        clinical_cases_averted_pop, severe_cases_averted_pop)
 
-library(matrixStats)
 plotdat_mean <- df %>%
   filter(age_group == 'U2' &
            scen != 'counterfactual' &

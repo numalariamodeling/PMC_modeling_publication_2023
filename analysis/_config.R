@@ -3,8 +3,8 @@
 ## _config.R
 ##---------------------
 
-tbl_opts <- c("striped", "hover", "condensed", "responsive") # kableExtra
-pckg <- c("dplyr", "data.table", "wrapr", "dplyr", "tidyr", "lubridate", "zoo", "ggthemes", "cowplot",
+tbl_opts <- c("striped", "hover", "condensed", "responsive") # kableExtrapackrat::init("~/projects/babynames")
+pckg <- c("dplyr", "data.table", "wrapr", "tidyr", "lubridate", "zoo", "ggthemes", "cowplot",
           "scales", "ggplot2", "RColorBrewer", "see", 'pracma') # kableExtra
 a <- lapply(pckg, require, character.only = TRUE)
 rm(a)
