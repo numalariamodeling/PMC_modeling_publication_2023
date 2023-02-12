@@ -13,7 +13,6 @@ from hbhi.utils import tryread_df
 from simulation.intervention_suite_cohort import InterventionSuite, add_all_interventions
 
 
-
 def tryread_df2(input_path, scen_df, id, fname):
     try:
         df = tryread_df(os.path.join(input_path, scen_df.at[id, fname]))
@@ -65,11 +64,11 @@ def setup_setting(cb,  scen_df, id, eir_monthly_multipliers, EIR_scale='monthly'
         monthly_eir = [(x / eir_sum) * annual_eir for x in monthly_eir_scalers]
 
     if EIR_scale == 'monthly':
-        add_InputEIR(cb, start_day=0, monthlyEIRs=monthly_eir)  # , EIR_type='MONTHLY', , age_dependence='OFF'
+        add_InputEIR(cb, start_day=0, monthlyEIRs=monthly_eir)
     if EIR_scale == 'daily':
         daily_eir = monthly_to_daily_EIR(monthly_eir)
         daily_eir = [(x / sum(daily_eir)) * annual_eir for x in daily_eir]
-        add_InputEIR(cb, start_day=0, EIR_type='DAILY', dailyEIRs=daily_eir)  # , age_dependence='OFF'
+        add_InputEIR(cb, start_day=0, EIR_type='DAILY', dailyEIRs=daily_eir)
 
     """Adjust Maternal_Antibody_Protection for transmission intensity"""
     #Maternal_Antibody_Protection = 0.1327
@@ -156,8 +155,7 @@ def setup_simulation(years):
     })
 
     # Filtered report (all years):
-    num_year = 1
-    start = 1  # 1 + (years - num_year) * 365
+    start = 1
     end = 1 + years * 365
     add_filtered_report(cb, start=start, end=end)
 
@@ -165,16 +163,7 @@ def setup_simulation(years):
     add_event_counter_report(cb, event_trigger_list=['Received_Treatment', 'Received_Severe_Treatment',
                                                      'Received_Vaccine', 'Received_Campaign_Drugs'],
                              duration=years * 365 + 1)
-    #
-    # for year in range(years):
-    #     add_monthly_parasitemia_rep_by_year(cb, num_year=years, tot_year=years,
-    #                                         sim_start_year=2020,
-    #                                         yr_plusone=True, prefix='Monthly')
-    # add_monthly_parasitemia_rep_by_year(cb, num_year=years, tot_year=years,
-    #                                     sim_start_year=2020,
-    #                                     yr_plusone=True,
-    #                                     age_bins=[1, 5, 120],
-    #                                     prefix='FineMonthly')
+
     return cb
 
 
