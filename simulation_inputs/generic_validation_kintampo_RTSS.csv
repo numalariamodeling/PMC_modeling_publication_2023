@@ -1,0 +1,4 @@
+setting_id,annual_EIR,cm_coverage,seasonality,rtss_target_group,cm_target_group,rtss_mode,rtss_coverage,smc_coverage,ipti_coverage,ipti_mode,rtss_booster1_min_age,frac_high_access,demographics_filename,CM_filename,RTSS_filename
+HX0,11.1,0.9,kintampo,random,random,noboost,0,0,0,basic,730,0.9,Demographics\generic_demographics_cohort_correlated90.json,CM\CM_constant_90coverage.csv,RTSS\RTSS_noboost_0coverage_kintampo.csv
+HX1,11.1,0.9,kintampo,random,random,noboost,1,0,0,basic,730,0.9,Demographics\generic_demographics_cohort_correlated90.json,CM\CM_constant_90coverage.csv,RTSS\RTSS_noboost_100coverage_kintampo.csv
+HX2,11.1,0.9,kintampo,random,random,constant,1,0,0,basic,730,0.9,Demographics\generic_demographics_cohort_correlated90.json,CM\CM_constant_90coverage.csv,RTSS\RTSS_constant_100coverage_kintampo.csv
