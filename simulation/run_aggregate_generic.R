@@ -206,17 +206,13 @@ aggregate_dat <- function(dat, grp_vars, aggr_vars, outcome_vars) {
 
 
 ##______________________________ run script
-
 args <- commandArgs(TRUE)
-#exp_name <- args[1]
-exp_name <- "generic_PMCmode_RTSS_vaccSP_IIV"
-
+exp_name <- args[1]
 print(exp_name)
 
-#pmc_path <- '/projects/b1139/ipti_pmc/'
-pmc_path <- 'C:/Users/mrm9534/NU Malaria Modeling Dropbox/projects/ipti_pmc/simulation_output/_pmc_rtss_generic'
-simout_dir <- pmc_path # file.path(pmc_path, 'simulation_output', '_pmc_rtss_generic')
-processout_dir <- file.path(simout_dir, exp_name) #file.path(pmc_path, 'postprocessed_output', '_pmc_rtss_generic', exp_name)
+projectpath = os.getcwd()
+simout_dir <- file.path(projectpath, 'simulation_output')
+processout_dir <- file.path(projectpath, 'postprocessed_output', exp_name)
 
 if (!dir.exists(processout_dir))dir.create(processout_dir)
 

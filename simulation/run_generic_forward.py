@@ -10,9 +10,8 @@ from simtools.ModBuilder import ModBuilder, ModFn
 from simtools.SetupParser import SetupParser
 
 sys.path.append('../')
-from pmc_rtss_generic.setup_helper import setup_setting, setup_simulation, add_generic_interventions
-from simulations.nucluster_helpers import create_submisson_scripts_2
-from load_paths import load_box_paths
+from simulation.setup_helper import setup_setting, setup_simulation, add_generic_interventions
+from simulation.nucluster_helpers import create_submisson_scripts_2
 
 logger = logging.getLogger(__name__)
 SetupParser.default_block = 'NUCLUSTER'
@@ -34,8 +33,8 @@ args = parse_args()
 testrun = args.test
 scen_csv = args.scen_csv
 
-_, _, _, projectpath = load_box_paths()
-input_path = os.path.join(projectpath, 'simulation_inputs/generic_cohort_ds')
+projectpath = os.getcwd()
+input_path = os.path.join(projectpath, 'simulation_inputs')
 
 num_seeds = 5
 years = 6
@@ -98,7 +97,7 @@ builder = ModBuilder.from_list([[ModFn(setup_setting,
 if __name__ == "__main__":
 
     run_sim_args = {
-        'exp_name': f'mrm9534_{exp_name}',
+        'exp_name': exp_name,
         'config_builder': cb,
         'exp_builder': builder
     }
