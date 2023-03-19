@@ -1,6 +1,6 @@
 ##---------------------
 ## Perennial malaria chemoprevention with and without malaria vaccination to reduce malaria burden in young children: a modeling analysis
-## SI_fig_02_supp_agegroup.R
+## Fig_A1.2.4_agegroups.R
 ##---------------------
 source(file.path('analysis', '_config.R'))
 
@@ -72,62 +72,6 @@ pplot2 <- ggplot(data = pdat,
 pplot <- plot_combine(list(pplot1, pplot2))
 
 print(pplot)
-f_save_plot(pplot, 'S1_fig',
+f_save_plot(pplot, 'Fig A1.2.4',
             file.path(plot_dir), width = 12, height = 6, units = 'in', device_format = device_format)
 
-
-### Tables
-
-dat_aggr %>%
-  ungroup() %>%
-  filter(name == 'clinical_cases' & ipti_mode_fct == 'None') %>%
-  mutate(Annual_EIR = paste0('eir ', Annual_EIR),
-         median = format_num(median_val),
-         low = format_num(low_val),
-         up = format_num(up_val),
-         value = paste0(median, ' (', low, '-', up, ')')) %>%
-  dplyr::select(age_group, Annual_EIR, ipti_mode_fct, value) %>%
-  pivot_wider(names_from = Annual_EIR, values_from = value) %>%
-  kbl() %>%
-  kable_styling(bootstrap_options = tbl_opts, full_width = F, position = "left", fixed_thead = T)
-
-dat_aggr %>%
-  ungroup() %>%
-  filter(name == 'clinical_cases_averted' & ipti_mode_fct != 'None') %>%
-  mutate(Annual_EIR = paste0('eir ', Annual_EIR),
-         median = format_num(median_val),
-         low = format_num(low_val),
-         up = format_num(up_val),
-         value = paste0(median, ' (', low, '-', up, ')')) %>%
-  dplyr::select(age_group, Annual_EIR, ipti_mode_fct, value) %>%
-  pivot_wider(names_from = Annual_EIR, values_from = value) %>%
-  kbl() %>%
-  kable_styling(bootstrap_options = tbl_opts, full_width = F, position = "left", fixed_thead = T)
-
-
-dat_aggr %>%
-  ungroup() %>%
-  filter(name == 'severe_cases' & ipti_mode_fct == 'None') %>%
-  mutate(Annual_EIR = paste0('eir ', Annual_EIR),
-         median = format_num(median_val),
-         low = format_num(low_val),
-         up = format_num(up_val),
-         value = paste0(median, ' (', low, '-', up, ')')) %>%
-  dplyr::select(age_group, Annual_EIR, ipti_mode_fct, value) %>%
-  pivot_wider(names_from = Annual_EIR, values_from = value) %>%
-  kbl() %>%
-  kable_styling(bootstrap_options = tbl_opts, full_width = F, position = "left", fixed_thead = T)
-
-
-dat_aggr %>%
-  ungroup() %>%
-  filter(name == 'severe_cases_averted' & ipti_mode_fct != 'None') %>%
-  mutate(Annual_EIR = paste0('eir ', Annual_EIR),
-         median = format_num(median_val),
-         low = format_num(low_val),
-         up = format_num(up_val),
-         value = paste0(median, ' (', low, '-', up, ')')) %>%
-  dplyr::select(age_group, Annual_EIR, ipti_mode_fct, value) %>%
-  pivot_wider(names_from = Annual_EIR, values_from = value) %>%
-  kbl() %>%
-  kable_styling(bootstrap_options = tbl_opts, full_width = F, position = "left", fixed_thead = T)

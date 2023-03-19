@@ -1,10 +1,9 @@
 ##---------------------
 ## Perennial malaria chemoprevention with and without malaria vaccination to reduce malaria burden in young children: a modeling analysis
-## SI_model_effectsize_comparison.R
+## Fig_A1.2.11_model_effectsize_comparison
 ##---------------------
 
 source(file.path('analysis', '_config.R'))
-
 
 scenario_labels <- c('None', 'PMC-3', 'PMC-4', 'PMC-5', 'PMC-6', 'PMC-7', 'RTS,S', 'PMC-3 + RTS,S')
 agegrp <- c('U1', 'U2')
@@ -111,5 +110,5 @@ p2 <- ggplot(data = temp_df) +
 pplot <- plot_grid(p1, p2, labels = c('a', 'b'), ncol = 2, rel_widths = c(0.7, 1))
 pplot
 
-f_save_plot(pplot, paste0('SI_fig_PMC_PE_summary_by_coverage'), file.path(plot_dir),
+f_save_plot(pplot, paste0('Fig A1.2.11'), file.path(plot_dir),
             width = 12, height = 4, units = 'in', device_format = device_format)

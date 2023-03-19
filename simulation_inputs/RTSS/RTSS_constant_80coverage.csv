@@ -1,3 +1,0 @@
-,coverage_levels,round,rtss_types,initial_killing,decay_time_constant,decay_class,rtss_touchpoints,RTSS_day,repetitions,tsteps_btwn_repetitions,deploy_type,agemin,agemax,distribution_name,distribution_std,run_col
-0,0.8,1,simple,0.8,592.4066512,WaningEffectExponential,NA,274,1,-1,EPI_cohort,0,5,CONSTANT_DISTRIBUTION,1,run
-1,0.8,2,booster,0.4,592.4066512,WaningEffectExponential,NA,730,1,-1,EPI_cohort,0,5,CONSTANT_DISTRIBUTION,1,run

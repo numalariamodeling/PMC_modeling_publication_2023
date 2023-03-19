@@ -9,7 +9,7 @@ source(file.path('analysis', '_fig05_helper_functions.R'))
 ##---------------
 ## PfPR
 ##---------------
-dhs_data(tagIds = 36, countryIds = c("NG"), breakdown = "subnational", surveyYearStart = 2018) %>%
+dhs_data(tagIds = 36, countryIds = c("NG"), breakdown = "subnational", , surveyYearStart = 2018, surveyYearEnd= 2018) %>%
   dhs_get_name1() %>%
   filter(Indicator %in% c("Malaria prevalence according to microscopy", "Malaria prevalence according to RDT")) %>%
   dplyr::select(SurveyYear, Indicator, Value, NAME_1) %>%
@@ -24,48 +24,20 @@ dhs_data(tagIds = 36, countryIds = c("NG"), breakdown = "subnational", surveyYea
   rename(ADM1_NAME = NAME_1) %>%
   mutate(State = ADM1_NAME, ADM1_NAME = ifelse(ADM1_NAME == 'Akwa Ibom', 'Akwa lbom', ADM1_NAME)) %>%
   arrange(State) %>%
-  fwrite(file = file.path("data_files", "dhs_pfpr_df.csv"))
+  fwrite(file = file.path("data_files", "ndhs_2018_pfpr_df.csv"))
 
 
 ##---------------
 ## CM
 ##---------------
-#'ML_FEVR_C_FEV',
-dhs_data(indicatorIds = c('ML_FEVR_C_FEV', 'ML_FEVT_C_ADV', 'ML_FEVT_C_ACT'),
-         countryIds = c("NG"), breakdown = "subnational", surveyYearStart = 2018) %>%
-  dhs_get_name1() %>%
-  dplyr::select(SurveyYear, Indicator, Value, NAME_1) %>%
-  mutate(Indicator = gsub("Children with fever who took a combination with artemisinin", "GotACT", Indicator)) %>%
-  mutate(Indicator = gsub("Children with fever for whom advice or treatment was sought", "SoughtCare", Indicator)) %>%
-  mutate(Indicator = gsub("Children under 5 with fever in the last two weeks", "HadFever", Indicator)) %>%
-  pivot_wider(names_from = "Indicator", values_from = "Value") %>%
-  add_nga_admin() %>%
-  filter(southern_nga == 'Southern States') %>%
-  mutate(HadFever = HadFever / 100,
-         SoughtCare = SoughtCare / 100,
-         GotACT = GotACT / 100) %>%
-  dplyr::select(NAME_1, HadFever, SoughtCare, GotACT) %>%
-  rename(ADM1_NAME = NAME_1) %>%
-  mutate(State = ADM1_NAME, ADM1_NAME = ifelse(ADM1_NAME == 'Akwa Ibom', 'Akwa lbom', ADM1_NAME)) %>%
-  arrange(State) %>%
-  fwrite(file = file.path("data_files", "dhs_act_df.csv"))
+## Used from Ozodiegwu et al 2022
+### see https://github.com/numalariamodeling/hbhi-nigeria-publication-2021/blob/main/hbhi-dhs-tools/1_variables_scripts/CM/CM_DHS_estimates.R
 
-fread(file.path(pmc_path, 'simulation_inputs/nigeria/projection_csvs/CM', 'HS_by_LGA_v5.csv')) %>%
-  mutate(NAME_1 = State) %>%
-  filter(year == 2018) %>%
-  group_by(NAME_1) %>%
-  summarize(U5_coverage = mean(U5_coverage)) %>%
-  add_nga_admin() %>%
-  filter(southern_nga == 'Southern States') %>%
-  dplyr::select(NAME_1, U5_coverage) %>%
-  mutate(State = NAME_1, NAME_1 = ifelse(NAME_1 == 'Akwa Ibom', 'Akwa lbom', NAME_1)) %>%
-  arrange(State) %>%
-  fwrite(file = file.path("data_files", "dhs_act_df.csv"))
 
 ##---------------
 ## EPI
 ##---------------
-dhs_data(tagIds = 32, countryIds = c("NG"), breakdown = "subnational", surveyYearStart = 2018) %>%
+dhs_data(tagIds = 32, countryIds = c("NG"), breakdown = "subnational", surveyYearStart = 2018, surveyYearEnd= 2018) %>%
   dhs_get_name1() %>%
   dplyr::select(SurveyYear, Indicator, Value, NAME_1) %>%
   mutate(Indicator = gsub(" vaccination", "", Indicator),
@@ -93,5 +65,5 @@ dhs_data(tagIds = 32, countryIds = c("NG"), breakdown = "subnational", surveyYea
   rename(ADM1_NAME = NAME_1) %>%
   mutate(State = ADM1_NAME, ADM1_NAME = ifelse(ADM1_NAME == 'Akwa Ibom', 'Akwa lbom', ADM1_NAME)) %>%
   arrange(State) %>%
-  fwrite(file = file.path("data_files", "dhs_vacc_df.csv"))
+  fwrite(file = file.path("data_files", "ndhs_2018_vacc_df.csv"))
 

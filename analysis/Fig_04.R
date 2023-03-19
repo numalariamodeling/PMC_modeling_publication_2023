@@ -610,6 +610,131 @@ if (fig4C_cum) {
 
 } #fig4C_cum
 
+if (fig4_alternative) {
+
+  scenario_labels <- c('None', 'PMC-3', 'PMC-4', 'PMC-5', 'PMC-6', 'PMC-7', 'RTS,S', 'PMC-3 + RTS,S')
+  agegrp <- c('U2')
+  outcome_cols <- c('clinical_cases_averted', 'severe_cases_averted')
+  pmc_modes <- c("3tp", "4tp2ndyr", "5tp2ndyr", "6tp2ndyr", "7tp2ndyr")  # "4tp"  "5tp"
+  pmc_labels <- c('PMC-3', 'PMC-4', 'PMC-5', 'PMC-6', 'PMC-7')
+
+  model1 <- T
+  if (model1) {
+    exp_name <- 'generic_PMCmode_RTSS_vaccSP_IIV'
+    exp_name_rtss_cov_scen <- 'generic_single_RTSS_vaccSP_IIV'
+    exp_name_pmc3rtss <- 'generic_PMCmode_RTSS_cov_vaccSP_IIV'
+
+    cases_df_pmc <- fread(file.path(simout_dir, exp_name, 'simdat_aggr_agegroup.csv')) %>%
+      filter(age_group %in% agegrp) %>%
+      filter(pmc_mode %in% pmc_modes,
+             pmc_coverage > 0 & rtss_coverage == 0) %>%
+      mutate(coverage = pmc_coverage) %>%
+      dplyr::select(-pmc_coverage, -pmc_rtss_cov)
+
+    cases_df <- fread(file.path(simout_dir, exp_name_rtss_cov_scen, 'simdat_aggr_agegroup.csv')) %>%
+      filter(age_group %in% agegrp,
+             pmc_coverage == 0 & rtss_coverage > 0) %>%
+      mutate(coverage = rtss_coverage,
+             pmc_mode = 'rtss') %>%
+      dplyr::select(-pmc_coverage, -pmc_rtss_cov) %>%
+      bind_rows(cases_df_pmc)
+
+    cases_df_0 <- fread(file.path(simout_dir, exp_name, 'simdat_aggr_agegroup.csv')) %>%
+      filter(age_group %in% agegrp) %>%
+      filter(pmc_mode %in% c('3tp'),
+             pmc_coverage == 0 & rtss_coverage == 0) %>%
+      mutate(coverage = 0) %>%
+      dplyr::select(-pmc_coverage, -pmc_rtss_cov, -pmc_mode) %>%
+      left_join(cases_df[, c('name', 'Annual_EIR', 'age_group', 'pmc_mode')]) ## repeat by pmc_mode
+
+    cases_df_pmctss <- fread(file.path(simout_dir, exp_name_pmc3rtss, 'simdat_aggr_agegroup.csv')) %>%
+      filter(age_group %in% agegrp) %>%
+      filter(pmc_mode %in% c('3tp'),
+             pmc_coverage == rtss_coverage) %>%
+      mutate(coverage = rtss_coverage,
+             pmc_mode = 'rtss_pmc3') %>%
+      dplyr::select(-pmc_coverage, -pmc_rtss_cov)
+
+    cases_df <- cases_df %>%
+      bind_rows(cases_df_0) %>%
+      bind_rows(cases_df_pmctss)
+
+    cases_df$scen <- factor(cases_df$pmc_mode,
+                            levels = c(pmc_modes, 'rtss', 'rtss_pmc3'),
+                            labels = c(pmc_labels, 'RTS,S', 'PMC-3 + RTS,S'))
+  } #model1
+
+
+  plot_df_averted <- cases_df %>%
+    filter(name %in% c('clinical_cases_averted', 'severe_cases_averted')) %>%
+    mutate(name = ifelse(name == 'clinical_cases_averted', 'clinical', 'severe'))
+
+  plot_df_PE <- cases_df %>%
+    filter(name %in% c('PE_clinical_incidence', 'PE_severe_incidence')) %>%
+    rename_with(~sub('_val', '_valPE', .x)) %>%
+    mutate(name = ifelse(name == 'PE_clinical_incidence', 'clinical', 'severe'))
+
+  plot_df <- plot_df_averted %>%
+    left_join(plot_df_PE) %>%
+    mutate(yconversion = up_val / up_valPE,
+           yconversion = ifelse(is.na(yconversion), 1, yconversion))
+
+  plot_df %>%
+    filter(name == 'clinical') %>%
+    summarize(yconversion = max(yconversion))
+  plot_df %>%
+    filter(name == 'severe') %>%
+    summarize(yconversion = max(yconversion))
+  #
+  ggplot(data = subset(plot_df, name == 'clinical')) +
+    geom_line(aes(x = coverage, y = mean_valPE, col = scen), show.legend = F) +
+    geom_ribbon(aes(x = coverage, ymin = low_valPE, ymax = up_valPE, fill = scen), show.legend = F, alpha = 0.3) +
+    geom_point(aes(x = coverage, y = mean_valPE, col = scen, fill = scen, shape = 'generic')) +
+    scale_shape_manual(values = c(21, 23, 25)) +
+    labs(shape = 'Model type',
+         y = 'Cases averted',
+         col = 'Scenario', fill = 'Scenario') +
+    facet_wrap(~name, scales = 'free') +
+    f_getCustomTheme()
+
+  p1 <- ggplot(data = subset(plot_df, name == 'clinical')) +
+    geom_line(aes(x = coverage, y = mean_val, col = scen), show.legend = F) +
+    geom_ribbon(aes(x = coverage, ymin = low_val, ymax = up_val, fill = scen), show.legend = F, alpha = 0.3) +
+    geom_point(aes(x = coverage, y = mean_val, col = scen, fill = scen), shape=21) +
+    scale_y_continuous(lim=c(NA, 1500),"Annual cases averted\nper 1000 population", sec.axis = sec_axis(~. / 3100*100, name = "PE (% reduction)")) +
+    scale_x_continuous(breaks = seq(0, 1, 0.25), labels = seq(0, 1, 0.25) * 100) +
+    scale_color_manual(values = custom_cols) +
+    scale_fill_manual(values = custom_cols) +
+    labs(y = 'Cases averted', x = 'Coverage (%)',
+         col = 'Scenario', fill = 'Scenario') +
+    facet_wrap(~name, scales = 'free') +
+    f_getCustomTheme()
+
+
+  p2 <- ggplot(data = subset(plot_df, name == 'severe')) +
+    geom_line(aes(x = coverage, y = mean_val, col = scen), show.legend = F) +
+    geom_ribbon(aes(x = coverage, ymin = low_val, ymax = up_val, fill = scen), show.legend = F, alpha = 0.3) +
+    geom_point(aes(x = coverage, y = mean_val, col = scen, fill = scen), shape=21) +
+    scale_y_continuous(lim=c(NA, 25), "Annual cases averted\nper 1000 population", sec.axis = sec_axis(~. / 30*100, name = "PE (% reduction)")) +
+    scale_x_continuous(breaks = seq(0, 1, 0.25), labels = seq(0, 1, 0.25) * 100) +
+    scale_color_manual(values = custom_cols) +
+    scale_fill_manual(values = custom_cols) +
+    labs(y = 'Cases averted', x = 'Coverage (%)',
+         col = 'Scenario', fill = 'Scenario') +
+    facet_wrap(~name, scales = 'free') +
+    f_getCustomTheme()
+
+
+  pplot <- plot_combine(list(p1, p2), labels = c('a', 'b'), ncol = 1)
+  pplot
+
+  f_save_plot(pplot, paste0('Fig_04C_alternative'), file.path(plot_dir),
+              width = 6, height = 8, units = 'in', device_format = device_format)
+
+
+}
+
+
 ### Tables
 if (result_tables) {
   cases_df_agegrp <- fread(file.path(simout_dir, exp_name, 'simdat_aggr_agegroup.csv')) %>%

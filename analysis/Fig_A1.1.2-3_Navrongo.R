@@ -1,14 +1,15 @@
 ##---------------------
 ## Perennial malaria chemoprevention with and without malaria vaccination to reduce malaria burden in young children: a modeling analysis
-## SI_Navrongo.R
+## Fig_A1.1.2-3_Navrongo.R
 ##---------------------
 source(file.path('analysis', '_config.R'))
 
+## Ghana study details
 study_start <- as.Date("2000-09-30")
 study_end <- as.Date("2004-06-01")
 study_years <- as.numeric((study_end - study_start) / 365)
-ipti_touchpoints <- c(91, 122, 274, 365)
-ipti_touchpoints_wks <- ceiling(ipti_touchpoints / 7)
+pmc_touchpoints <- c(91, 122, 274, 365)
+pmc_touchpoints_wks <- ceiling(pmc_touchpoints / 7)
 
 ##---------------------------------------
 ## Reference
@@ -17,9 +18,7 @@ refs <- 'ipti3_mean'
 ref_wk = 'week3'
 
 exp_name <- 'navrongo_ipti_test_decayshape'
-expsubdir <- '_navrongo'
-
-simout_dir <- file.path(ipti_path, 'simulation_output', expsubdir, exp_name)
+simout_dir <- file.path('simulation_output', exp_name)
 output_dir <- simout_dir
 
 
@@ -97,7 +96,7 @@ f_load_ref_df <- function(fig_suffix = 'S8') {
   #from Cairns et al 2011, cohort starting in sep
   #ref = c(0.2203, 0.1868, 0.0909, 0.0747, 0.0792, 0.0518, 0.0605, 0.0146, 0.0107, 0.0150, 0.1160, 0.1795)
   #refm = c(0.1757, 0.1835, 0.1558, 0.1127, 0.0594, 0.0314, 0.0190, 0.0131, 0.0176, 0.0342, 0.0800, 0.1467)
-  ref_df_S8 <- fread(file.path(ipti_path, 'data', 'Cairns_2011', 'figS8.csv'))
+  ref_df_S8 <- fread(file.path('data_files', 'Cairns_2011_figS8.csv'))
   colnames(ref_df_S8) <- tolower(colnames(ref_df_S8))
   ref_df_S8 <- ref_df_S8 %>%
     dplyr::mutate(date = as.Date(paste(year, month, '01', sep = '-'))) %>%
@@ -105,7 +104,7 @@ f_load_ref_df <- function(fig_suffix = 'S8') {
     dplyr::summarise(malaria_risk = mean(malaria_risk))
 
   ## Malaria incidence from Chandramohan et al 2005, Figure 3, placebo only
-  ref_df_fig3 <- fread(file.path(ipti_path, 'data', 'Cairns_2011', 'fig3.csv'))
+  ref_df_fig3 <- fread(file.path('data_files', 'Cairns_2011_fig3.csv'))
   colnames(ref_df_fig3) <- tolower(colnames(ref_df_fig3))
   ref_df_fig3 <- ref_df_fig3 %>% mutate(date = as.Date(paste(year, month, '01', sep = '-')))
 
@@ -186,7 +185,7 @@ f_load_pd_sweeps_aggr <- function(keep_runs = FALSE, monthly = F) {
   return(pd_sweep)
 }
 
-f_agebin_protection <- function(cases_averted.df, start_wk = 9, end_wk = 60, ipti_set = 'week2', ref_set = 'ca_ref_vec', SAVE = F) {
+f_agebin_protection <- function(cases_averted.df, start_wk = 9, end_wk = 60, pmc_set = 'week2', ref_set = 'ca_ref_vec', SAVE = F) {
   #separate out by treatment groups to create placebo comparison
   inc_trt <- as.data.frame(cases_averted.df[which(cases_averted.df$treatment_grp == 'treatment'),])
   inc_plc <- as.data.frame(cases_averted.df[which(cases_averted.df$treatment_grp == 'placebo'),])
@@ -225,7 +224,7 @@ f_agebin_protection <- function(cases_averted.df, start_wk = 9, end_wk = 60, ipt
 ### Chandramohan et al 2005, Fig 3 malaria incidence over time in placebo group
 ##---------------------------------------
 ref_df <- f_load_ref_df(fig_suffix = 'fig3')
-ref_df_pfpr <- fread(file.path(ipti_path, 'data', 'Chandramohan_2005', 'pfpr.csv')) %>%
+ref_df_pfpr <- fread(file.path('data_files', 'Chandramohan_2005_pfpr.csv')) %>%
   mutate(date = as.Date(date, format = '%m/%d/%Y'), month = month(date)) %>%
   select(-date)
 sim_df <- f_load_eir_sweeps(aggregate_years = FALSE) %>% left_join(ref_df_pfpr)
@@ -251,7 +250,7 @@ pplot_pfpr <- ggplot(data = subset(sim_df, study_group == 'placebo')) +
 pplot <- plot_combine(list(pplot_incidence, pplot_pfpr), labels = c('A', 'B'))
 print(pplot)
 
-f_save_plot(pplot, paste0('fig_SI_navrongo_clinicalcases_EIRsweep'),
+f_save_plot(pplot, paste0('Fig A1.1.2'),
             file.path(plot_dir), width = 12, height = 6, units = 'in', device_format = device_format)
 
 
@@ -259,41 +258,43 @@ f_save_plot(pplot, paste0('fig_SI_navrongo_clinicalcases_EIRsweep'),
 ### navrongo_ipti_test_decayshape_adj_eff95
 ##---------------------------------------
 exp_name <- 'navrongo_ipti_test_decayshape_adj_eff95'
-simout_dir <- file.path(ipti_path, 'simulation_output/_navrongo', exp_name)
+simout_dir <- file.path('simulation_output', exp_name)
 output_dir <- simout_dir
 
-ca_ref.df <- fread(file.path(ipti_path, 'data', 'Cairns_2008', 'table1.csv')) %>%
-  rename(weekipti = week_since_ipti) %>%
+ca_ref.df <- fread(file.path('data_files', 'Cairns_2008_table1.csv')) %>%
+  rename(weekpmc = week_since_ipti) %>%
   as.data.frame()
-ca_ref.df$week2 <- seq(ipti_touchpoints_wks[2], ipti_touchpoints_wks[2] + 11, 1)
-ca_ref.df$week3 <- seq(ipti_touchpoints_wks[3], ipti_touchpoints_wks[3] + 11, 1)
-ca_ref.df$week4 <- seq(ipti_touchpoints_wks[4], ipti_touchpoints_wks[4] + 11, 1)
+ca_ref.df$week2 <- seq(pmc_touchpoints_wks[2], pmc_touchpoints_wks[2] + 11, 1)
+ca_ref.df$week3 <- seq(pmc_touchpoints_wks[3], pmc_touchpoints_wks[3] + 11, 1)
+ca_ref.df$week4 <- seq(pmc_touchpoints_wks[4], pmc_touchpoints_wks[4] + 11, 1)
 
 ca_ref.df_long <- ca_ref.df %>%
-  pivot_longer(cols = -c('weekipti', 'week2', 'week3', 'week4')) %>%
-  separate(name, into = c('ipti_dose', 'statistic'), sep = '_') %>%
-  mutate(ipti_dose = ifelse(ipti_dose == 'iptiall', 'combined', gsub("ipti", "PMC-", ipti_dose))) %>%
+  pivot_longer(cols = -c('weekpmc', 'week2', 'week3', 'week4')) %>%
+  separate(name, into = c('pmc_dose', 'statistic'), sep = '_') %>%
+  mutate(pmc_dose = ifelse(pmc_dose == 'iptiall', 'combined', gsub("ipti", "PMC-", pmc_dose))) %>%
   pivot_wider(names_from = statistic, values_from = value)
 
-cases_averted.df <- f_load_pd_sweeps_aggr(keep_runs = T)
+cases_averted.df <- f_load_pd_sweeps_aggr(keep_runs = T) %>%
+  rename_with(~gsub('ipti', 'pmc', .x))
 
 conf.df <- f_agebin_protection(cases_averted.df) %>%
+  rename_with(~gsub('ipti', 'pmc', .x)) %>%
   ungroup() %>%
   dplyr::select(age_days, meanred, lPI, hPI)
 
-conf.df$week_after_dose <- (conf.df$age_days - ipti_touchpoints[2]) / 7
+conf.df$week_after_dose <- (conf.df$age_days - pmc_touchpoints[2]) / 7
 conf.df_2 <- conf.df %>%
-  mutate(ipti_dose = 'PMC-2') %>%
+  mutate(pmc_dose = 'PMC-2') %>%
   dplyr::select(-age_days)
 
-conf.df$week_after_dose <- (conf.df$age_days - ipti_touchpoints[3]) / 7
+conf.df$week_after_dose <- (conf.df$age_days - pmc_touchpoints[3]) / 7
 conf.df_3 <- conf.df %>%
-  mutate(ipti_dose = 'PMC-3') %>%
+  mutate(pmc_dose = 'PMC-3') %>%
   dplyr::select(-age_days)
 
-conf.df$week_after_dose <- (conf.df$age_days - ipti_touchpoints[4]) / 7
+conf.df$week_after_dose <- (conf.df$age_days - pmc_touchpoints[4]) / 7
 conf.df_4 <- conf.df %>%
-  mutate(ipti_dose = 'PMC-4') %>%
+  mutate(pmc_dose = 'PMC-4') %>%
   dplyr::select(-age_days)
 
 conf.df_perdose <- rbind(conf.df_2, conf.df_3, conf.df_4) %>%
@@ -306,37 +307,37 @@ conf.df_combined <- conf.df_perdose %>%
   summarize(meanred = mean(meanred),
             lPI = mean(lPI),
             hPI = mean(hPI)) %>%
-  mutate(ipti_dose = 'combined')
+  mutate(pmc_dose = 'combined')
 conf.df_perdose <- rbind(conf.df_perdose, conf.df_combined)
 
-ipti_levels <- c('PMC-2', 'PMC-3', 'PMC-4', 'combined')
-conf.df_perdose$ipti_dose <- factor(conf.df_perdose$ipti_dose, levels = ipti_levels, labels = ipti_levels)
-ca_ref.df_long$ipti_dose <- factor(ca_ref.df_long$ipti_dose, levels = ipti_levels, labels = ipti_levels)
+pmc_levels <- c('PMC-2', 'PMC-3', 'PMC-4', 'combined')
+conf.df_perdose$pmc_dose <- factor(conf.df_perdose$pmc_dose, levels = pmc_levels, labels = pmc_levels)
+ca_ref.df_long$pmc_dose <- factor(ca_ref.df_long$pmc_dose, levels = pmc_levels, labels = pmc_levels)
 
-pplot1 <- ggplot(data = subset(ca_ref.df_long, ipti_dose != 'combined')) +
-  geom_ribbon(data = subset(conf.df_perdose, ipti_dose != 'combined'), aes(x = week_after_dose, y = meanred, ymin = lPI, ymax = hPI), fill = 'deepskyblue3', alpha = 0.4) +
-  geom_line(data = subset(conf.df_perdose, ipti_dose != 'combined'), aes(x = week_after_dose, y = meanred), col = 'deepskyblue3') + #col = 'deepskyblue3') +
+pplot1 <- ggplot(data = subset(ca_ref.df_long, pmc_dose != 'combined')) +
+  geom_ribbon(data = subset(conf.df_perdose, pmc_dose != 'combined'), aes(x = week_after_dose, y = meanred, ymin = lPI, ymax = hPI), fill = 'deepskyblue3', alpha = 0.4) +
+  geom_line(data = subset(conf.df_perdose, pmc_dose != 'combined'), aes(x = week_after_dose, y = meanred), col = 'deepskyblue3') + #col = 'deepskyblue3') +
   geom_hline(yintercept = 0) +
   #ylim(-200, 100) +
   scale_x_continuous(breaks = seq(0, 12, 1), lim = c(-1, 12)) +
   labs(x = "Time after dose (weeks)", y = "% reduction clinical incidence") +
-  geom_point(aes(x = weekipti, y = mean), col = 'black') +
-  geom_pointrange(aes(x = weekipti, y = mean, ymin = cilow, ymax = ciup), col = 'black', size = 0.1) +
-  facet_wrap(~ipti_dose, ncol = 3) +
+  geom_point(aes(x = weekpmc, y = mean), col = 'black') +
+  geom_pointrange(aes(x = weekpmc, y = mean, ymin = cilow, ymax = ciup), col = 'black', size = 0.1) +
+  facet_wrap(~pmc_dose, ncol = 3) +
   customTheme_nogrid +
   theme(legend.position = 'None')
 
 
-pplot2 <- ggplot(data = subset(ca_ref.df_long, ipti_dose == 'combined')) +
-  geom_ribbon(data = subset(conf.df_perdose, ipti_dose == 'combined'), aes(x = week_after_dose, y = meanred, ymin = lPI, ymax = hPI), fill = 'deepskyblue3', alpha = 0.4) +
-  geom_line(data = subset(conf.df_perdose, ipti_dose == 'combined'), aes(x = week_after_dose, y = meanred), col = 'deepskyblue3') + #col = 'deepskyblue3') +
+pplot2 <- ggplot(data = subset(ca_ref.df_long, pmc_dose == 'combined')) +
+  geom_ribbon(data = subset(conf.df_perdose, pmc_dose == 'combined'), aes(x = week_after_dose, y = meanred, ymin = lPI, ymax = hPI), fill = 'deepskyblue3', alpha = 0.4) +
+  geom_line(data = subset(conf.df_perdose, pmc_dose == 'combined'), aes(x = week_after_dose, y = meanred), col = 'deepskyblue3') + #col = 'deepskyblue3') +
   geom_hline(yintercept = 0) +
   #ylim(-200, 100) +
   scale_x_continuous(breaks = seq(0, 12, 1), lim = c(-1, 12)) +
   labs(x = "Time after dose (weeks)", y = "% reduction clinical incidence") +
-  geom_point(aes(x = weekipti, y = mean), col = 'black') +
-  geom_pointrange(aes(x = weekipti, y = mean, ymin = cilow, ymax = ciup), col = 'black', size = 0.1) +
-  facet_wrap(~ipti_dose, ncol = 3) +
+  geom_point(aes(x = weekpmc, y = mean), col = 'black') +
+  geom_pointrange(aes(x = weekpmc, y = mean, ymin = cilow, ymax = ciup), col = 'black', size = 0.1) +
+  facet_wrap(~pmc_dose, ncol = 3) +
   customTheme_nogrid +
   theme(legend.position = 'None')
 
@@ -349,12 +350,12 @@ PE_ref_df <- as.data.frame(NA) %>% mutate(PE_mean = 0.243,
 
 pplot3 <- cases_averted.df %>%
   filter(agebin <= 1.0) %>%
-  group_by(Run_Number, EIR.scale.factor, cm_cov_U5, cm_cov_adults, ipti_cov, ipti_touchpoints, treatment_grp) %>%
+  group_by(Run_Number, EIR.scale.factor, cm_cov_U5, cm_cov_adults, pmc_cov, pmc_touchpoints, treatment_grp) %>%
   summarize(total_cases = sum(total_cases),
             Pop = mean(Pop)) %>%
   pivot_wider(names_from = treatment_grp, values_from = c(total_cases, Pop)) %>%
   mutate(PE = 1 - (total_cases_treatment / total_cases_placebo)) %>%
-  group_by(EIR.scale.factor, cm_cov_U5, cm_cov_adults, ipti_cov, ipti_touchpoints) %>%
+  group_by(EIR.scale.factor, cm_cov_U5, cm_cov_adults, pmc_cov, pmc_touchpoints) %>%
   summarize(PE_mean = mean(PE),
             PE_min = min(PE),
             PE_max = max(PE),
@@ -374,9 +375,6 @@ pplot <- plot_grid(pplot2, pplot3, labels = c('B', 'C'), align = 'hv', rel_width
 pplot <- plot_grid(pplot1, pplot, nrow = 2, labels = c('A', NA, NA))
 print(pplot)
 
-f_save_plot(pplot, paste0('fig_SI_navrongo_PMC'),
+f_save_plot(pplot, paste0('Fig A1.1.3'),
             file.path(plot_dir), width = 12, height = 6, units = 'in', device_format = device_format)
-
-
-
 

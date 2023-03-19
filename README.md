@@ -14,10 +14,13 @@ Similarly, PMC with more doses is more impactful and at operational coverage add
 Our analysis provides a simplified approach for exploring varying PMC schedules across different transmission settings. 
 
 ### Repository structure:  
-1. `simulation_inputs` stores scenario csv files 
-2. `simulations` script to run EMOD simulations (requires HPC)
-3. `simulation_output` and `postprocessed_output`: processed EMOD ouput files in csv format
-4. `analysis`: generates plots and results 
+1. `data_files` stores input and reference data used in analysis*
+2. `simulation_inputs` stores scenario csv files *
+3. `simulations` script to run EMOD simulations (requires HPC)
+4. `simulation_output` and `postprocessed_output`: processed EMOD ouput files in csv format*
+5. `analysis`: generates result figures, written into `figures`
+
+*) Data and simulation files stored on Zenodo (DOI: 10.5281/zenodo.7750298)
 
 
 ### Requirements:

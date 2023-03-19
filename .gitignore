@@ -1,8 +1,10 @@
 .idea/
 _scratch/
 figures/pdf/
+figures/csv/
 postprocessed_output/*
 simulation_output/*
 !postprocessed_output/README.md
 !simulation_output/README.md
 *.pyc
+*.zip
