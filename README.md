@@ -13,6 +13,11 @@ Similarly, PMC with more doses is more impactful and at operational coverage add
 
 Our analysis provides a simplified approach for exploring varying PMC schedules across different transmission settings. 
 
+----------------------------------
+_Manuscript under review, analysis scripts can be found in the branch `prepublication`_
+
+----------------------------------
+
 ### Repository structure:  
 1. `data_files` stores input and reference data used in analysis*
 2. `simulation_inputs` stores scenario csv files *
@@ -22,9 +27,7 @@ Our analysis provides a simplified approach for exploring varying PMC schedules 
 
 *) Data and simulation files stored on Zenodo (DOI: 10.5281/zenodo.7750298)
 
-
 ### Requirements:
-
 
 **EMOD**
 https://docs.idmod.org/projects/emod-malaria/en/latest/index.html
