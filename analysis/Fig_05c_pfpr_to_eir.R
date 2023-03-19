@@ -25,9 +25,8 @@ baseline_pfpr <- fread(file.path(simout_dir, exp_name, 'simdat_aggr_agegroup.csv
 #fwrite(baseline_pfpr, file.path(simout_dir, exp_name, 'baseline_pfpr.csv'))
 baseline_pfpr <- fread(file.path(simout_dir, exp_name, 'baseline_pfpr.csv'))
 
-
 ## add country DHS data
-pfpr_df <- fread(file = file.path("data_files", "dhs_pfpr_df.csv")) %>%
+pfpr_df <- fread(file = file.path("data_files", "ndhs_2018_pfpr_df.csv")) %>%
   dplyr::select(State, RDT_2018, microscopy_2018)
 
 baseline_pfpr_sub <- baseline_pfpr %>%
@@ -41,11 +40,5 @@ pred_df = data.frame('RDT_2018' = sort(pfpr_df$RDT_2018))
 pred_df$predEIR <- exp(predict(model, pred_df$RDT_2018, type = 'response'))
 pfpr_df <- pfpr_df %>% left_join(pred_df)
 
-# ggplot(data = subset(baseline_pfpr, statistic == 'mean_val')) +
-#   geom_point(aes(x = Annual_EIR, y = pfpr_U5, group = cm_coverage)) +
-#   geom_line(aes(x = Annual_EIR, y = pfpr_U5, group = cm_coverage)) +
-#   scale_x_log10() +
-#   geom_point(data = pfpr_df, aes(x = predEIR, y = RDT_2018, group = State), col = 'deepskyblue3')
-
-fwrite(pfpr_df, file.path("data_files", "dhs_pfpr_eir_df.csv"))
+fwrite(pfpr_df, file.path("data_files", "ndhs_2018_pfpr_eir_df.csv"))
 

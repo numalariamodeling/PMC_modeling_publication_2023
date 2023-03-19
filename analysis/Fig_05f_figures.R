@@ -102,9 +102,9 @@ df <- df %>%
            age_group == 'U2') %>%
   left_join(nga_pop) %>%
   mutate(clinicalinc_ppa = clinical_cases / 1000,
-         clinicalcases_pop = clinical_cases / 1000 * pop_U2,
+         clinical_cases_pop = clinical_cases / 1000 * pop_U2,
          severeinc_ppa = severe_cases / 1000,
-         severecases_pop = severe_cases / 1000 * pop_U2,
+         severe_cases_pop = severe_cases / 1000 * pop_U2,
          clinical_cases_averted_pop = clinical_cases_averted / 1000 * pop_U2, ,
          severe_cases_averted_pop = severe_cases_averted / 1000 * pop_U2) %>%
   mutate(ADM1_NAME = gsub('Akwa Ibom', 'Akwa lbom', State))
@@ -123,14 +123,14 @@ tapply(df$PE_severe_cases, df$age_group, summary)
 ### describe counterfactual
 desc_counterfactual = F
 if (desc_counterfactual) {
-  fread(file.path(simout_dir, 'NGA_simdat_aggr_agegroup.csv')) %>%
+  df %>%
     mutate(State = seasonality) %>%
     filter(statistic == 'mean_val') %>%
     left_join(nga_pop) %>%
     mutate(clinicalinc_ppa = clinical_cases / 1000,
-           clinicalcases_pop = clinical_cases / 1000 * pop_U2,
+           clinical_cases_pop = clinical_cases / 1000 * pop_U2,
            severeinc_ppa = severe_cases / 1000,
-           severecases_pop = severe_cases / 1000 * pop_U2,
+           severe_cases_pop = severe_cases / 1000 * pop_U2,
            clinical_cases_averted_pop = clinical_cases_averted / 1000 * pop_U2, ,
            severe_cases_averted_pop = severe_cases_averted / 1000 * pop_U2) %>%
     mutate(ADM1_NAME = gsub('Akwa Ibom', 'Akwa lbom', State)) %>%
@@ -156,14 +156,12 @@ if (desc_counterfactual) {
              statistic == 'mean_val') %>%
     group_by(age_group, State, statistic) %>%
     summarize(
-      clinicalcases_pop = sum(clinicalcases_pop),
-      severecases_pop = sum(severecases_pop),
-      clinical_cases_unw = mean(clinical_cases),  ## incidence
-      severe_cases_unw = mean(severe_cases),  ## incidence
-      clinical_cases = weighted.mean(clinical_cases, pop_U2),  ## incidence
-      severe_cases = weighted.mean(severe_cases, pop_U2), ## incidence
-      clinicalcases_pop = sum(clinicalcases_pop),
-      severecases_pop = sum(severecases_pop),
+      clinical_cases_pop = sum(clinical_cases_pop),
+      severe_cases_pop = sum(severe_cases_pop),
+      clinical_incidence_unw = mean(clinical_cases),  ## incidence
+      severe_incidence_unw = mean(severe_cases),  ## incidence
+      clinical_incidence = weighted.mean(clinical_cases, pop_U2),  ## incidence
+      severe_incidence = weighted.mean(severe_cases, pop_U2), ## incidence
       total_pop = sum(total_pop),
       pop_U2 = sum(pop_U2))
 
@@ -186,9 +184,7 @@ outcome_vars_sum <- qc(clinical_cases_pop, severe_cases_pop,
                        clinical_cases_averted_pop, severe_cases_averted_pop)
 
 plotdat_mean <- df %>%
-  filter(age_group == 'U2' &
-           scen != 'counterfactual' &
-           statistic == 'mean_val') %>%
+  filter(age_group == 'U2' & statistic == 'mean_val') %>%
   dplyr::select_at(.vars = c(grp_vars, outcome_vars_mean, 'seasonality', 'pop_U2')) %>%
   tidyr::pivot_longer(col = outcome_vars_mean) %>%
   dplyr::group_by_at(.vars = c(grp_vars, 'name')) %>%
@@ -215,7 +211,21 @@ plotdat_pop <- plotdat_mean %>%
          median_val_unw = median_val_unw / 1000 * pop_U2,
          median_val = median_val / 1000 * pop_U2,
          mean_val = mean_val / 1000 * pop_U2,
-         mean_val_unw = mean_val_unw / 1000 * pop_U2)
+         mean_val_unw = mean_val_unw / 1000 * pop_U2,
+         sd.val = sd.val / 1000 * pop_U2,
+         se.val = se.val / 1000 * pop_U2,
+         low_val = low_val / 1000 * pop_U2,
+         up_val = up_val / 1000 * pop_U2,
+         min_val = min_val / 1000 * pop_U2,
+         max_val = max_val / 1000 * pop_U2)
+
+## for comparison
+plotdat_sum <- df %>%
+  filter(age_group == 'U2' & statistic == 'mean_val') %>%
+  dplyr::select_at(.vars = c(grp_vars, outcome_vars_sum, 'seasonality', 'pop_U2')) %>%
+  tidyr::pivot_longer(col = outcome_vars_sum) %>%
+  dplyr::group_by_at(.vars = c(grp_vars, 'name')) %>%
+  dplyr::summarise(value = sum(value), pop_U2 = sum(pop_U2))
 
 if (outcome_measure_fig5 == 'clinical_cases_averted_pop') {
   plotdat <- plotdat_pop
@@ -282,7 +292,8 @@ pplot
 f_save_plot(pplot, paste0('Fig5G_total_cases_averted'), file.path(plot_dir),
             width = 16, height = 4, units = 'in', device_format = device_format)
 fwrite(plotdat, file.path(plot_dir, 'csv', 'Fig5G_total_cases_averted_dat.csv'))
-
-
+# fwrite(plotdat_pop, file.path(plot_dir, 'csv', 'Fig5G_total_cases_averted_pop_dat.csv'))
+# fwrite(plotdat_mean, file.path(plot_dir, 'csv', 'Fig5G_total_cases_averted_dat_inc.csv'))
+# fwrite(plotdat_sum, file.path(plot_dir, 'csv', 'Fig5G_total_cases_averted_dat_sum.csv'))
 
 

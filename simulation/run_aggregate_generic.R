@@ -3,7 +3,7 @@ a <- lapply(pckg, require, character.only = TRUE)
 rm(a)
 
 
-load_generic_simdat_week <- function(exp_name, simout_dir, sweepVars = NULL) {
+load_generic_simdat_week <- function(exp_name, simout_dir, sweepVars = NULL, counterfactual_separate = F) {
   if (is.null(sweepVars))sweepVars <- c('pmc_mode', 'pmc_coverage', 'rtss_coverage', 'cm_coverage')
 
   grpVARS <- c('age', 'week', 'year', sweepVars,
@@ -36,13 +36,19 @@ load_generic_simdat_week <- function(exp_name, simout_dir, sweepVars = NULL) {
            severe_cases = New_Severe_Cases / (Statistical_Population / 52) * 1000,
            pmc_rtss_cov = paste0(pmc_coverage, '-', rtss_coverage))
 
+  ## remove duplicates
+  dat <- dat %>%
+    group_by_at(c(grpVARS, 'year', 'age', 'week')) %>%
+    filter(Setting_id == min(Setting_id)) %>%
+    ungroup()
+
   exp_key <- grpVARS[!(grpVARS %in% c('pmc_mode', 'pmc_coverage', 'rtss_coverage', 'pmc_rtss_cov'))]
-  dat <- f_impact_measures(dat, exp_key)
+  dat <- f_impact_measures(dat, exp_key, counterfactual_separate)
 
   return(dat)
 }
 
-load_generic_simdat_month <- function(exp_name, simout_dir, sweepVars = NULL) {
+load_generic_simdat_month <- function(exp_name, simout_dir, sweepVars = NULL, counterfactual_separate = F) {
   if (is.null(sweepVars))sweepVars <- c('pmc_mode', 'pmc_coverage', 'rtss_coverage', 'cm_coverage')
 
   grpVARS <- c('age', 'month', 'year', sweepVars,
@@ -72,13 +78,19 @@ load_generic_simdat_month <- function(exp_name, simout_dir, sweepVars = NULL) {
            severe_cases = New_Severe_Cases / (Statistical_Population / 12) * 1000,
            pmc_rtss_cov = paste0(pmc_coverage, '-', rtss_coverage))
 
+  ## remove duplicates
+  dat <- dat %>%
+    group_by_at(c(grpVARS, 'year', 'age')) %>%
+    filter(Setting_id == min(Setting_id)) %>%
+    ungroup()
+
   exp_key <- grpVARS[!(grpVARS %in% c('pmc_mode', 'pmc_coverage', 'rtss_coverage', 'pmc_rtss_cov'))]
-  dat <- f_impact_measures(dat, exp_key)
+  dat <- f_impact_measures(dat, exp_key, counterfactual_separate)
 
   return(dat)
 }
 
-load_generic_simdat_year <- function(exp_name, simout_dir, sweepVars = NULL) {
+load_generic_simdat_year <- function(exp_name, simout_dir, sweepVars = NULL, counterfactual_separate = F) {
 
   if (is.null(sweepVars))sweepVars <- c('pmc_mode', 'pmc_coverage', 'rtss_coverage', 'cm_coverage')
 
@@ -102,22 +114,27 @@ load_generic_simdat_year <- function(exp_name, simout_dir, sweepVars = NULL) {
            severe_cases = New_Severe_Cases / Statistical_Population * 1000,
            pmc_rtss_cov = paste0(pmc_coverage, '-', rtss_coverage))
 
+  ## remove duplicates
+  dat <- dat %>%
+    group_by_at(c(grpVARS, 'year', 'age')) %>%
+    filter(Setting_id == min(Setting_id)) %>%
+    ungroup()
+
   grpVARS <- c(grpVARS, 'age')
   exp_key <- grpVARS[!(grpVARS %in% c('pmc_mode', 'pmc_coverage', 'rtss_coverage', 'pmc_rtss_cov'))]
-  dat <- f_impact_measures(dat, exp_key)
+  dat <- f_impact_measures(dat, exp_key, counterfactual_separate)
 
   return(dat)
 
 }
 
-load_generic_simdat_agegroup <- function(exp_name, simout_dir, sweepVars = NULL, max_years = c(1, 2, 5, 10)) {
+load_generic_simdat_agegroup <- function(exp_name, simout_dir, sweepVars = NULL, counterfactual_separate = F, max_years = c(1, 2, 5, 10)) {
 
   if (is.null(sweepVars))sweepVars <- c('pmc_mode', 'pmc_coverage', 'rtss_coverage', 'cm_coverage')
 
   grpVARS <- c(sweepVars, 'Annual_EIR', 'seasonality', 'Cohort_birth_month', 'Run_Number')
 
   dat <- fread(file.path(simout_dir, exp_name, 'All_Age_yearly_Cases.csv'))
-
   if ('ipti_mode' %in% colnames(dat)) {
     dat$pmc_mode <- dat$ipti_mode
     dat$pmc_coverage <- dat$ipti_coverage
@@ -126,6 +143,13 @@ load_generic_simdat_agegroup <- function(exp_name, simout_dir, sweepVars = NULL,
   dat <- dat %>%
     rename_with(~gsub(" ", "_", .x)) %>%
     mutate(pmc_rtss_cov = paste0(pmc_coverage, '-', rtss_coverage))
+
+  ## remove duplicates
+  dat <- dat %>%
+    group_by_at(c(grpVARS, 'year', 'age')) %>%
+    filter(Setting_id == min(Setting_id)) %>%
+    ungroup()
+
 
   if (!('year' %in% colnames(dat)))dat <- dat %>% mutate(year = year(date) - 2020)
   print(summary(dat$year))
@@ -160,15 +184,15 @@ load_generic_simdat_agegroup <- function(exp_name, simout_dir, sweepVars = NULL,
 
   grpVARS <- c(grpVARS, 'age_group')
   exp_key <- grpVARS[!(grpVARS %in% c('Statistical_Population', 'pmc_mode', 'pmc_coverage', 'rtss_coverage', 'pmc_rtss_cov'))]
-  dat <- f_impact_measures(dat, exp_key)
+  dat <- f_impact_measures(dat, exp_key, counterfactual_separate)
 
   return(dat)
 
 }
 
-f_impact_measures <- function(dat, exp_key) {
+f_impact_measures <- function(dat, exp_key, counterfactual_separate = F) {
   #exp_key <- grpVARS[!(grpVARS %in% c('pmc_mode', 'pmc_coverage', 'rtss_coverage'))]
-  if ('0-0' %in% unique(dat$pmc_rtss_cov)) {
+  if ('0-0' %in% unique(dat$pmc_rtss_cov) & !counterfactual_separate) {
     dat <- data.table(dat, key = exp_key)
     dat[, PE_clinical_incidence := 1 - clinical_cases / clinical_cases[pmc_rtss_cov == '0-0'], by = exp_key]
     dat[, PE_severe_incidence := 1 - severe_cases / severe_cases[pmc_rtss_cov == '0-0'], by = exp_key]
@@ -179,9 +203,40 @@ f_impact_measures <- function(dat, exp_key) {
       dat[, severe_cases_averted_cum := severe_cases_cum[pmc_rtss_cov == '0-0'] - severe_cases_cum, by = exp_key]
     }
   }
+  if (counterfactual_separate) {
+    dat_0 <- dat %>%
+      filter(pmc_rtss_cov == '0-0') %>%
+      ungroup() %>%
+      rename(clinical_cases_c = clinical_cases, severe_cases_c = severe_cases) %>%
+      select_at(all_of(c(exp_key, 'clinical_cases_c', 'severe_cases_c')))
+
+    dat <- dat %>%
+      left_join(dat_0) %>%
+      mutate(PE_clinical_incidence = 1 - clinical_cases / clinical_cases_c,
+             PE_severe_incidence = 1 - severe_cases / severe_cases_c,
+             clinical_cases_averted = clinical_cases_c - clinical_cases,
+             severe_cases_averted = severe_cases_c - severe_cases) %>%
+      select(-clinical_cases_c, -severe_cases_c)
+    rm(dat_0)
+
+    if ('clinical_cases_cum' %in% colnames(dat)) {
+      dat_0 <- dat %>%
+        filter(pmc_rtss_cov == '0-0') %>%
+        ungroup() %>%
+        rename(clinical_cases_cum_c = clinical_cases_cum, severe_cases_cum_c = severe_cases_cum) %>%
+        select_at(all_of(c(exp_key, 'clinical_cases_cum_c', 'severe_cases_cum_c')))
+
+      dat <- dat %>%
+        left_join(dat_0) %>%
+        group_by_at(exp_key) %>%
+        mutate(clinical_cases_averted_cum = clinical_cases_cum_c - clinical_cases_cum,
+               severe_cases_averted_cum = severe_cases_cum_c - severe_cases_cum) %>%
+        select(-clinical_cases_cum_c, -severe_cases_cum_c)
+    }
+
+  }
   return(dat)
 }
-
 
 aggregate_dat <- function(dat, grp_vars, aggr_vars, outcome_vars) {
   if ('0-0' %in% unique(dat$pmc_rtss_cov)) {
@@ -208,9 +263,10 @@ aggregate_dat <- function(dat, grp_vars, aggr_vars, outcome_vars) {
 ##______________________________ run script
 args <- commandArgs(TRUE)
 exp_name <- args[1]
+counterfactual_separate <- F ## When analyzing custom scenarios
 print(exp_name)
 
-projectpath = os.getcwd()
+projectpath = getwd()
 simout_dir <- file.path(projectpath, 'simulation_output')
 processout_dir <- file.path(projectpath, 'postprocessed_output', exp_name)
 
@@ -230,21 +286,21 @@ outcome_vars <- c('Statistical_Population', 'PfHRP2_Prevalence',
 
 if (file.exists(file.path(simout_dir, exp_name, 'All_Age_yearly_Cases.csv'))) {
   cat('running load_generic_simdat_year')
-  load_generic_simdat_year(exp_name, simout_dir, sweepVars) %>%
+  load_generic_simdat_year(exp_name, simout_dir, sweepVars, counterfactual_separate) %>%
     aggregate_dat(grp_vars, aggr_vars, outcome_vars) %>%
     fwrite(file.path(processout_dir, 'simdat_aggr_year.csv'))
 }
 
 if (file.exists(file.path(simout_dir, exp_name, 'All_Age_monthly_Cases.csv'))) {
   cat('running load_generic_simdat_month')
-  load_generic_simdat_month(exp_name, simout_dir, sweepVars) %>%
+  load_generic_simdat_month(exp_name, simout_dir, sweepVars, counterfactual_separate) %>%
     aggregate_dat(grp_vars, aggr_vars, outcome_vars) %>%
     fwrite(file.path(processout_dir, 'simdat_aggr_month.csv'))
 }
 
 if (file.exists(file.path(simout_dir, exp_name, 'All_Age_weekly_Cases.csv'))) {
   cat('running load_generic_simdat_week')
-  load_generic_simdat_week(exp_name, simout_dir, sweepVars) %>%
+  load_generic_simdat_week(exp_name, simout_dir, sweepVars, counterfactual_separate) %>%
     aggregate_dat(grp_vars, aggr_vars, outcome_vars) %>%
     fwrite(file.path(processout_dir, 'simdat_aggr_week.csv'))
 }
@@ -255,7 +311,7 @@ if (file.exists(file.path(simout_dir, exp_name, 'All_Age_yearly_Cases.csv'))) {
   grp_vars <- c('age_group', 'Annual_EIR', sweepVars, 'pmc_rtss_cov')
   outcome_vars <- unique(c(outcome_vars, 'clinical_cases_cum', 'severe_cases_cum',
                            'clinical_cases_averted_cum', 'severe_cases_averted_cum'))
-  load_generic_simdat_agegroup(exp_name, simout_dir, sweepVars) %>%
+  load_generic_simdat_agegroup(exp_name, simout_dir, sweepVars, counterfactual_separate) %>%
     aggregate_dat(grp_vars, aggr_vars, outcome_vars) %>%
     fwrite(file.path(processout_dir, 'simdat_aggr_agegroup.csv'))
 }

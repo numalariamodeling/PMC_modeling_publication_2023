@@ -9,7 +9,7 @@ source(file.path('analysis', '_fig05_helper_functions.R'))
 ##---------------
 ## EPI to PMC downscaling
 ##---------------
-dhs_vacc_df <- fread(file.path("data_files", "dhs_vacc_df.csv"))
+dhs_vacc_df <- fread(file.path("data_files", "ndhs_2018_vacc_df.csv"))
 sclalefactors <- EPI_to_pmc_cov(get_scaling_factors = T)
 dhs_pmc_cov_df <- dhs_vacc_df %>%
   rename(vacc_cov = value) %>%
@@ -23,7 +23,7 @@ dhs_pmc_cov_df <- dhs_vacc_df %>%
   group_by(ADM1_NAME, State) %>%
   mutate(mean_vacc_cov = mean(vacc_cov),
          mean_vacc_cov_adj = mean(vacc_cov_adj)) %>%
-  fwrite(file.path("data_files", 'dhs_epi_dat.csv'))
+  fwrite(file.path("data_files", 'ndhs_2018_epi_dat.csv'))
 
 
 ##---------------
@@ -31,7 +31,7 @@ dhs_pmc_cov_df <- dhs_vacc_df %>%
 ##---------------
 
 pmc_mode <- '7tp'
-dhs_cov_dat <- fread(file.path("data_files", 'dhs_epi_dat.csv')) %>%
+dhs_cov_dat <- fread(file.path("data_files", 'ndhs_2018_epi_dat.csv')) %>%
   dplyr::select(State, vacc_age, vacc_cov, vacc_cov_adj) %>%
   group_by(vacc_age) %>%
   mutate(round = cur_group_id(),
@@ -72,12 +72,12 @@ target_dat <- dhs_cov_dat %>%
   pivot_longer(cols = -vacc_age) %>%
   mutate(value = 0.8, name = 'target')
 
-fwrite(dhs_cov_dat, file.path("data_files", 'dhs_epi_dat_extended.csv'))
+fwrite(dhs_cov_dat, file.path("data_files", 'ndhs_2018_epi_dat_extended.csv'))
 
 ##---------------
 ## Figure
 ##---------------
-pplot <- fread(file.path("data_files", 'dhs_epi_dat_extended.csv')) %>%
+pplot <- fread(file.path("data_files", 'ndhs_2018_epi_dat_extended.csv')) %>%
   mutate(vacc_age = as.numeric(vacc_age / (365 / 12))) %>%
   group_by(vacc_age) %>%
   summarize(mean_vacc_cov = mean(vacc_cov),
@@ -100,4 +100,4 @@ pplot <- fread(file.path("data_files", 'dhs_epi_dat_extended.csv')) %>%
   customTheme
 
 print(pplot)
-f_save_plot(pplot, plot_name = paste0(plot_dir, 'Fig05_F'), width = 5.5, height = 3, plot_dir)
+f_save_plot(pplot, plot_name = paste0(plot_dir, 'Fig_05_F'), width = 5.5, height = 3, plot_dir)

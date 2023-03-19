@@ -1,4 +1,8 @@
-#### RTS,S by EIR
+##---------------------
+## Perennial malaria chemoprevention with and without malaria vaccination to reduce malaria burden in young children: a modeling analysis
+## Fig_A1.1.4_rtss_by_eir.R
+##---------------------
+
 source(file.path('analysis', '_config.R'))
 
 exp_name <- 'generic_RTSScov_EIR_constant_vaccSP_IIV'
@@ -30,4 +34,4 @@ pplot <- cases_df %>%
          fill = guide_legend(reverse = T))
 
 print(pplot)
-f_save_plot(pplot, plot_name = 'Fig1B_supp', width = 8, height = 4, plot_dir = plot_dir)
+f_save_plot(pplot, plot_name = 'Fig A1.1.4', width = 8, height = 4, plot_dir = plot_dir)
