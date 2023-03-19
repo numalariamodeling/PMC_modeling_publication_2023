@@ -13,10 +13,7 @@ Similarly, PMC with more doses is more impactful and at operational coverage add
 
 Our analysis provides a simplified approach for exploring varying PMC schedules across different transmission settings. 
 
-----------------------------------
-_Manuscript under review, analysis scripts can be found in the branch `prepublication`_
-
-----------------------------------
+---------------------------------------------
 
 ### Repository structure:  
 1. `data_files` stores input and reference data used in analysis*
