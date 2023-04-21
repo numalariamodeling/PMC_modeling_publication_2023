@@ -1,6 +1,7 @@
 ## Perennial Malaria Chemoprevention with and without malaria vaccination to reduce malaria burden in young children: a modeling analysis
 _[Preprint on ResearchSquare](https://www.researchsquare.com/article/rs-2710667/v1)_
 
+
 ### Objective and summary
 Perennial malaria chemoprevention (PMC), previously known as intermittent preventive treatment in infants, aims to reduce malaria burden during the first few years of life. The intervention has been recently relabeled by WHO to allow for more flexibility in deployment and several pilot implementation studies are ongoing to gather evidence needed for policy adoption in countries. 
 The recent endorsement of the malaria vaccine RTS,S further adds to the complexity of malaria prevention options and combinations in young children that need to be addressed.
@@ -14,10 +15,6 @@ Similarly, PMC with more doses is more impactful and at operational coverage add
 
 Our analysis provides a simplified approach for exploring varying PMC schedules across different transmission settings. 
 
-----------------------------------
-_Manuscript under review, analysis scripts can be found in the branch `prepublication`_
-
-----------------------------------
 
 ### Repository structure:  
 1. `data_files` stores input and reference data used in analysis*
@@ -59,3 +56,4 @@ scales
 RColorBrewer  
 see  
 pracma  
+
