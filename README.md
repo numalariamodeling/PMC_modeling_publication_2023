@@ -1,6 +1,8 @@
-## Perennial Malaria Chemoprevention with and without malaria vaccination to reduce malaria burden in young children: a modeling analysis
-_[Preprint on ResearchSquare](https://www.researchsquare.com/article/rs-2710667/v1)_
+## [Perennial Malaria Chemoprevention with and without malaria vaccination to reduce malaria burden in young children: a modeling analysis](https://rdcu.be/daOwZ)
 
+_Manuela Runge, Anne Stahlfeld, Monique Ambrose, Kok Ben Toh, Semiu Rahman, Omowunmi F. Omoniwa, Caitlin A. Bever, Olusola Oresanya, Perpetua Uhomoibhi, Beatriz Galatas, James K. Tibenderana & Jaline Gerardin -  Malar J 22, 133 (2023)._
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7750298.svg)](https://doi.org/10.5281/zenodo.7750298)
 
 ### Objective and summary
 Perennial malaria chemoprevention (PMC), previously known as intermittent preventive treatment in infants, aims to reduce malaria burden during the first few years of life. The intervention has been recently relabeled by WHO to allow for more flexibility in deployment and several pilot implementation studies are ongoing to gather evidence needed for policy adoption in countries. 
@@ -23,7 +25,7 @@ Our analysis provides a simplified approach for exploring varying PMC schedules 
 4. `simulation_output` and `postprocessed_output`: processed EMOD ouput files in csv format*
 5. `analysis`: generates result figures, written into `figures`
 
-*) Data and simulation files stored on Zenodo (DOI: 10.5281/zenodo.7750298)
+*) Data and simulation files stored on [Zenodo](https://doi.org/10.5281/zenodo.7750298). 
 
 ### Requirements:
 
